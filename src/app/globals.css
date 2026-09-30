@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ate-bg: #050505;
+  --color-ate-surface: #0B0B0D;
+  --color-ate-panel: #111114;
+  --color-ate-border: rgba(255, 255, 255, 0.08);
+  
+  --color-ate-red: #D00000;
+  --color-ate-red-bright: #FF1F2D;
+  --color-ate-red-deep: #850000;
+  
+  --color-ate-white: #F7F7F7;
+  --color-ate-muted: #99999F;
+  --color-ate-success: #22C55E;
+  --color-ate-warning: #F59E0B;
+
+  --color-primary-red: #D00000;
+  --color-primary-red-bright: #FF1F2D;
+  --color-panel: #111114;
+  --color-surface: #0B0B0D;
+  --color-secondary: #99999F;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+}
+
+:root {
+  --ate-bg: #050505;
+  --ate-surface: #0B0B0D;
+  --ate-panel: #111114;
+  --ate-border: rgba(255, 255, 255, 0.08);
+  --ate-red: #D00000;
+  --ate-red-bright: #FF1F2D;
+  --ate-red-deep: #850000;
+  --ate-white: #F7F7F7;
+  --ate-muted: #99999F;
+  --ate-success: #22C55E;
+  --ate-warning: #F59E0B;
+}
+
+body {
+  background-color: #050505;
+  color: #F7F7F7;
+  font-family: var(--font-sans), 'Inter', sans-serif;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), 'Space Grotesk', sans-serif;
+}
+
+::selection {
+  background-color: #D00000;
+  color: #FFFFFF;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #111114;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

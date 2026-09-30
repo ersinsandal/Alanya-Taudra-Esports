@@ -1,0 +1,1206 @@
+// This is a draft of the Prisma schema to be placed at prisma/schema.prisma
+// Will be moved to the project after Next.js init completes
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DEACTIVATED
+  DELETED
+}
+
+enum StudentStatus {
+  HIGH_SCHOOL
+  UNIVERSITY
+  GRADUATED
+  WORKING
+  OTHER
+}
+
+enum SchoolType {
+  PUBLIC
+  PRIVATE
+}
+
+enum UniversityType {
+  STATE
+  FOUNDATION
+}
+
+enum TeamRole {
+  CAPTAIN
+  PLAYER
+  SUBSTITUTE
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  TRYOUT_INVITED
+  TRYOUT_COMPLETED
+  INTERVIEW
+  ACCEPTED
+  REJECTED
+  WAITLIST
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+  GROUP_PLAYOFFS
+}
+
+enum TournamentStatus {
+  DRAFT
+  UPCOMING
+  REGISTRATION_OPEN
+  CHECK_IN
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum ScrimStatus {
+  OPEN
+  PENDING
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
+
+enum EventType {
+  WATCH_PARTY
+  LAN
+  MEET_AND_GREET
+  TOURNAMENT
+  WORKSHOP
+  SCHOOL_EVENT
+  UNIVERSITY_EVENT
+  SEMINAR
+  COMMUNITY_MEETUP
+  TRYOUT_EVENT
+}
+
+enum NewsCategory {
+  ATE
+  MATCH
+  TRANSFER
+  TOURNAMENT
+  COMMUNITY
+  SCHOOL
+  CAMPUS
+  ANNOUNCEMENT
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+  HIGHLIGHT
+  INTERVIEW
+  BEHIND_THE_SCENES
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+enum ClipPlatform {
+  YOUTUBE
+  TWITCH
+  OTHER
+}
+
+enum SponsorTier {
+  MAIN_PARTNER
+  OFFICIAL_PARTNER
+  TECHNOLOGY_PARTNER
+  COMMUNITY_PARTNER
+  LOCAL_PARTNER
+}
+
+enum SiteMode {
+  DEFAULT
+  MATCH_DAY
+  LIVE
+  VICTORY
+  NEW_SIGNING
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
+}
+
+enum GameCategory {
+  PC
+  MOBILE
+  CONSOLE
+  CROSS_PLATFORM
+}
+
+enum PointSource {
+  TOURNAMENT_PARTICIPATION
+  TOURNAMENT_WIN
+  MVP_AWARD
+  EVENT_PARTICIPATION
+  COMMUNITY_CONTRIBUTION
+  ADMIN_VERIFIED
+  ACHIEVEMENT_EARNED
+}
+
+enum NotificationType {
+  TEAM_INVITE
+  TEAM_APPLICATION
+  TOURNAMENT
+  MATCH
+  EVENT
+  BADGE
+  SCHOOL
+  SYSTEM
+  ANNOUNCEMENT
+}
+
+// ============================================
+// CORE USER SYSTEM
+// ============================================
+
+model User {
+  id            String     @id @default(uuid())
+  ateId         String     @unique // ATE-074-XXXXXX
+  email         String     @unique
+  phone         String?
+  passwordHash  String
+  username      String     @unique
+  status        UserStatus @default(ACTIVE)
+  emailVerified Boolean    @default(false)
+  phoneVerified Boolean    @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  profile              UserProfile?
+  roles                UserRole[]
+  sessions             UserSession[]
+  gameProfiles         GameProfile[]
+  teamMemberships      TeamMember[]
+  sentInvites          TeamInvite[]             @relation("InviteSender")
+  receivedInvites      TeamInvite[]             @relation("InviteReceiver")
+  teamApplications     TeamApplication[]
+  crewMemberships      CrewMember[]
+  crewLeaderships      CrewLeader[]
+  crewApplications     CrewApplication[]
+  achievements         UserAchievement[]
+  pointTransactions    PointTransaction[]
+  notifications        Notification[]
+  notificationPrefs    NotificationPreference[]
+  reports              Report[]                 @relation("Reporter")
+  eventRegistrations   EventRegistration[]
+  gameClips            GameClip[]
+  newsAuthored         NewsPost[]
+  consents             Consent[]
+  privacyRequests      PrivacyRequest[]
+  emailVerifications   EmailVerification[]
+  phoneVerifications   PhoneVerification[]
+  passwordResets       PasswordReset[]
+  auditLogs            AuditLog[]               @relation("AuditActor")
+  schoolRepresentative SchoolRepresentative?
+  matchMvps            Match[]                  @relation("MatchMvp")
+  createdTeams         Team[]                   @relation("TeamCreator")
+
+  @@index([email])
+  @@index([username])
+  @@index([ateId])
+  @@index([status])
+}
+
+model UserProfile {
+  id              String         @id @default(uuid())
+  userId          String         @unique
+  firstName       String
+  lastName        String
+  birthDate       DateTime?
+  country         String         @default("Türkiye")
+  city            String?
+  isAlanya        Boolean        @default(false)
+  studentStatus   StudentStatus?
+  schoolId        String?
+  universityId    String?
+  avatarUrl       String?
+  bio             String?
+  discordUsername String?
+  purpose         String[] // User's goals: competitive, academy, fan, etc.
+
+  // Privacy settings
+  showAge          Boolean @default(false)
+  showCity         Boolean @default(true)
+  showSchool       Boolean @default(false)
+  showOnlineStatus Boolean @default(true)
+  showGameProfiles Boolean @default(true)
+  allowTeamInvites Boolean @default(true)
+
+  profileCompleted Boolean @default(false)
+  completionPct    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school     School?     @relation(fields: [schoolId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
+
+  @@index([schoolId])
+  @@index([universityId])
+  @@index([isAlanya])
+}
+
+// ============================================
+// ROLES & PERMISSIONS
+// ============================================
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  displayName String
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  users       UserRole[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String  @id @default(uuid())
+  name        String  @unique // e.g., "users.manage", "tournaments.create"
+  description String?
+  category    String // e.g., "users", "tournaments", "admin"
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+  assignedBy String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+// ============================================
+// AUTH & VERIFICATION
+// ============================================
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model EmailVerification {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+model PhoneVerification {
+  id        String    @id @default(uuid())
+  userId    String
+  phone     String
+  otp       String
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+model Consent {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String // e.g., "kvkk", "marketing", "data_processing"
+  version   String
+  accepted  Boolean
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PrivacyRequest {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String // "export" | "delete"
+  status      String    @default("PENDING") // PENDING, PROCESSING, COMPLETED
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// SCHOOLS & UNIVERSITIES
+// ============================================
+
+model School {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  slug      String     @unique
+  code      String?
+  type      SchoolType @default(PUBLIC)
+  district  String     @default("Alanya")
+  city      String     @default("Antalya")
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  profiles       UserProfile[]
+  representative SchoolRepresentative?
+  teams          Team[]                @relation("SchoolTeams")
+
+  @@index([slug])
+  @@index([name])
+}
+
+model University {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  type      UniversityType @default(STATE)
+  slug      String         @unique
+  shortName String?
+  city      String         @default("Antalya")
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  profiles  UserProfile[]
+  faculties Faculty[]
+  teams     Team[]        @relation("UniversityTeams")
+
+  @@index([slug])
+}
+
+model Faculty {
+  id           String @id @default(uuid())
+  universityId String
+  name         String
+  slug         String
+
+  university  University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments Department[]
+
+  @@unique([universityId, slug])
+}
+
+model Department {
+  id        String @id @default(uuid())
+  facultyId String
+  name      String
+  slug      String
+
+  faculty Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@unique([facultyId, slug])
+}
+
+model SchoolRepresentative {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  schoolId    String    @unique
+  grade       String?
+  motivation  String?
+  experience  String?
+  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  appointedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id])
+}
+
+// ============================================
+// GAMES
+// ============================================
+
+model Game {
+  id            String       @id @default(uuid())
+  name          String       @unique
+  slug          String       @unique
+  icon          String? // URL or emoji
+  category      GameCategory @default(PC)
+  rankStructure Json? // JSON defining rank tiers for this game
+  roleOptions   Json? // JSON defining available roles
+  isActive      Boolean      @default(true)
+  sortOrder     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  gameProfiles     GameProfile[]
+  teams            Team[]
+  tournaments      Tournament[]
+  scrims           Scrim[]
+  crews            Crew[]
+  crewApplications CrewApplication[]
+
+  @@index([slug])
+}
+
+model GameProfile {
+  id                    String   @id @default(uuid())
+  userId                String
+  gameId                String
+  inGameName            String?
+  currentRank           String?
+  peakRank              String?
+  mainRole              String?
+  secondaryRole         String?
+  mainCharacters        Json? // agents, champions, etc.
+  lookingForTeam        Boolean  @default(false)
+  competitionExperience String?
+  trackerUrl            String?
+  verified              Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@unique([userId, gameId])
+  @@index([gameId])
+  @@index([lookingForTeam])
+  @@index([currentRank])
+}
+
+// ============================================
+// TEAMS
+// ============================================
+
+model Team {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  tag              String
+  slug             String    @unique
+  gameId           String
+  description      String?
+  logoUrl          String?
+  isOfficial       Boolean   @default(false)
+  isSchoolTeam     Boolean   @default(false)
+  isUniversityTeam Boolean   @default(false)
+  isOpen           Boolean   @default(true)
+  verified         Boolean   @default(false)
+  schoolId         String?
+  universityId     String?
+  city             String?
+  createdById      String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  game            Game              @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  school          School?           @relation("SchoolTeams", fields: [schoolId], references: [id])
+  university      University?       @relation("UniversityTeams", fields: [universityId], references: [id])
+  createdBy       User              @relation("TeamCreator", fields: [createdById], references: [id])
+  members         TeamMember[]
+  invites         TeamInvite[]
+  applications    TeamApplication[]
+  tournamentTeams TournamentTeam[]
+  matchesAsTeamA  Match[]           @relation("MatchTeamA")
+  matchesAsTeamB  Match[]           @relation("MatchTeamB")
+  matchWins       MatchResult[]     @relation("MatchWinner")
+  scrimsCreated   Scrim[]           @relation("ScrimCreator")
+  scrimRequests   ScrimRequest[]
+
+  @@index([slug])
+  @@index([gameId])
+  @@index([isOfficial])
+  @@index([schoolId])
+}
+
+model TeamMember {
+  id       String   @id @default(uuid())
+  teamId   String
+  userId   String
+  role     TeamRole @default(PLAYER)
+  joinedAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model TeamInvite {
+  id          String       @id @default(uuid())
+  teamId      String
+  invitedById String
+  invitedId   String
+  message     String?
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  createdAt   DateTime     @default(now())
+  respondedAt DateTime?
+
+  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedBy User @relation("InviteSender", fields: [invitedById], references: [id])
+  invited   User @relation("InviteReceiver", fields: [invitedId], references: [id])
+
+  @@index([invitedId])
+  @@index([status])
+}
+
+model TeamApplication {
+  id        String       @id @default(uuid())
+  teamId    String
+  userId    String
+  message   String?
+  position  String? // The role they're applying for
+  status    InviteStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+// ============================================
+// GAME CREWS
+// ============================================
+
+model Crew {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  gameId      String
+  description String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  game    Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  members CrewMember[]
+  leaders CrewLeader[]
+}
+
+model CrewMember {
+  id       String   @id @default(uuid())
+  crewId   String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  crew Crew @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([crewId, userId])
+}
+
+model CrewLeader {
+  id         String   @id @default(uuid())
+  crewId     String
+  userId     String
+  assignedAt DateTime @default(now())
+
+  crew Crew @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([crewId, userId])
+}
+
+model CrewApplication {
+  id         String            @id @default(uuid())
+  userId     String
+  gameId     String
+  motivation String?
+  experience String?
+  status     ApplicationStatus @default(SUBMITTED)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// TOURNAMENTS
+// ============================================
+
+model Tournament {
+  id                   String           @id @default(uuid())
+  name                 String
+  slug                 String           @unique
+  gameId               String
+  format               TournamentFormat @default(SINGLE_ELIMINATION)
+  status               TournamentStatus @default(DRAFT)
+  description          String?
+  rules                String?
+  coverImage           String?
+  prizePool            String?
+  maxTeams             Int?
+  minTeamSize          Int?
+  maxTeamSize          Int?
+  registrationDeadline DateTime?
+  checkInRequired      Boolean          @default(false)
+  checkInStart         DateTime?
+  checkInEnd           DateTime?
+  startDate            DateTime
+  endDate              DateTime?
+  seasonId             String?
+  isSchoolLeague       Boolean          @default(false)
+  isCampusClash        Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  game    Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  season  Season?          @relation(fields: [seasonId], references: [id])
+  teams   TournamentTeam[]
+  matches Match[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([gameId])
+  @@index([startDate])
+}
+
+model TournamentTeam {
+  id           String    @id @default(uuid())
+  tournamentId String
+  teamId       String
+  seed         Int?
+  checkedIn    Boolean   @default(false)
+  checkedInAt  DateTime?
+  status       String    @default("REGISTERED") // REGISTERED, CHECKED_IN, ELIMINATED, WINNER
+  createdAt    DateTime  @default(now())
+
+  tournament Tournament         @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  team       Team               @relation(fields: [teamId], references: [id])
+  players    TournamentPlayer[]
+
+  @@unique([tournamentId, teamId])
+}
+
+model TournamentPlayer {
+  id               String @id @default(uuid())
+  tournamentTeamId String
+  userId           String
+
+  tournamentTeam TournamentTeam @relation(fields: [tournamentTeamId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentTeamId, userId])
+}
+
+model Season {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  tournaments Tournament[]
+}
+
+// ============================================
+// MATCHES
+// ============================================
+
+model Match {
+  id              String      @id @default(uuid())
+  tournamentId    String?
+  teamAId         String
+  teamBId         String
+  bestOf          Int         @default(1)
+  status          MatchStatus @default(SCHEDULED)
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  endedAt         DateTime?
+  streamUrl       String?
+  mvpPlayerId     String?
+  round           Int?
+  bracketPosition Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  tournament Tournament?  @relation(fields: [tournamentId], references: [id])
+  teamA      Team         @relation("MatchTeamA", fields: [teamAId], references: [id], onDelete: Cascade)
+  teamB      Team         @relation("MatchTeamB", fields: [teamBId], references: [id], onDelete: Cascade)
+  mvpPlayer  User?        @relation("MatchMvp", fields: [mvpPlayerId], references: [id])
+  maps       MatchMap[]
+  result     MatchResult?
+
+  @@index([tournamentId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model MatchMap {
+  id      String @id @default(uuid())
+  matchId String
+  mapName String
+  scoreA  Int    @default(0)
+  scoreB  Int    @default(0)
+  order   Int
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, order])
+}
+
+model MatchResult {
+  id           String   @id @default(uuid())
+  matchId      String   @unique
+  winnerTeamId String
+  scoreA       Int
+  scoreB       Int
+  createdAt    DateTime @default(now())
+
+  match  Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  winner Team  @relation("MatchWinner", fields: [winnerTeamId], references: [id])
+}
+
+// ============================================
+// SCRIMS
+// ============================================
+
+model Scrim {
+  id            String      @id @default(uuid())
+  creatorTeamId String
+  gameId        String
+  date          DateTime
+  bestOf        Int         @default(1)
+  server        String?
+  averageLevel  String?
+  notes         String?
+  status        ScrimStatus @default(OPEN)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  creatorTeam Team           @relation("ScrimCreator", fields: [creatorTeamId], references: [id])
+  game        Game           @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  requests    ScrimRequest[]
+}
+
+model ScrimRequest {
+  id               String   @id @default(uuid())
+  scrimId          String
+  requestingTeamId String
+  message          String?
+  status           String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt        DateTime @default(now())
+
+  scrim          Scrim @relation(fields: [scrimId], references: [id], onDelete: Cascade)
+  requestingTeam Team  @relation(fields: [requestingTeamId], references: [id])
+
+  @@unique([scrimId, requestingTeamId])
+}
+
+// ============================================
+// EVENTS
+// ============================================
+
+model Event {
+  id                   String    @id @default(uuid())
+  title                String
+  slug                 String    @unique
+  type                 EventType @default(COMMUNITY_MEETUP)
+  description          String?
+  date                 DateTime
+  endDate              DateTime?
+  time                 String?
+  venue                String?
+  mapUrl               String?
+  capacity             Int?
+  ageRequirement       Int?
+  coverImage           String?
+  registrationDeadline DateTime?
+  isActive             Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  registrations EventRegistration[]
+
+  @@index([slug])
+  @@index([date])
+}
+
+model EventRegistration {
+  id          String    @id @default(uuid())
+  eventId     String
+  userId      String
+  qrToken     String    @unique @default(uuid())
+  checkedIn   Boolean   @default(false)
+  checkedInAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+// ============================================
+// NEWS & MEDIA
+// ============================================
+
+model NewsPost {
+  id               String       @id @default(uuid())
+  title            String
+  slug             String       @unique
+  coverImage       String?
+  excerpt          String?
+  body             String
+  authorId         String
+  category         NewsCategory @default(ATE)
+  tags             Json?
+  isDraft          Boolean      @default(true)
+  publishDate      DateTime?
+  scheduledPublish DateTime?
+  seoTitle         String?
+  seoDescription   String?
+  ogImage          String?
+  viewCount        Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@index([category])
+  @@index([publishDate])
+}
+
+model MediaItem {
+  id           String    @id @default(uuid())
+  title        String
+  type         MediaType @default(PHOTO)
+  url          String
+  thumbnailUrl String?
+  category     String?
+  description  String?
+  createdAt    DateTime  @default(now())
+}
+
+model GameClip {
+  id               String           @id @default(uuid())
+  userId           String
+  title            String
+  embedUrl         String
+  platform         ClipPlatform     @default(YOUTUBE)
+  gameSlug         String?
+  description      String?
+  moderationStatus ModerationStatus @default(PENDING)
+  moderatedBy      String?
+  createdAt        DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moderationStatus])
+}
+
+// ============================================
+// GAMIFICATION
+// ============================================
+
+model Achievement {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String?
+  description String?
+  category    String?
+  criteria    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model PointTransaction {
+  id          String      @id @default(uuid())
+  userId      String
+  amount      Int
+  source      PointSource
+  description String?
+  adminId     String? // If manually awarded
+  auditLogId  String?
+  createdAt   DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============================================
+// PLATFORM
+// ============================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String?
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+model NotificationPreference {
+  id       String  @id @default(uuid())
+  userId   String
+  category String // account, security, tournament, match, team, academy, events, marketing
+  email    Boolean @default(true)
+  inApp    Boolean @default(true)
+  push     Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+}
+
+model Report {
+  id         String       @id @default(uuid())
+  reporterId String
+  targetType String // USER, TEAM, CLIP, NEWS
+  targetId   String
+  reason     String
+  details    String?
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  reporter User               @relation("Reporter", fields: [reporterId], references: [id])
+  actions  ModerationAction[]
+
+  @@index([status])
+}
+
+model ModerationAction {
+  id          String   @id @default(uuid())
+  reportId    String
+  moderatorId String
+  action      String // WARNING, SUSPENSION, BAN, DISMISS
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  action     String // e.g., "user.banned", "score.modified"
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================
+// SITE MANAGEMENT
+// ============================================
+
+model SiteSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+model SiteModeConfig {
+  id        String    @id @default(uuid())
+  mode      SiteMode  @default(DEFAULT)
+  isActive  Boolean   @default(false)
+  config    Json? // Mode-specific config (opponent, stream url, etc.)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model FeatureFlag {
+  id          String  @id @default(uuid())
+  key         String  @unique
+  enabled     Boolean @default(false)
+  description String?
+}
+
+model AnnouncementBar {
+  id        String    @id @default(uuid())
+  message   String
+  link      String?
+  isActive  Boolean   @default(false)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// ============================================
+// SPONSORS & PARTNERSHIPS
+// ============================================
+
+model Sponsor {
+  id        String      @id @default(uuid())
+  name      String
+  slug      String      @unique
+  logoUrl   String?
+  tier      SponsorTier @default(COMMUNITY_PARTNER)
+  website   String?
+  isActive  Boolean     @default(true)
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  campaigns SponsorCampaign[]
+}
+
+model SponsorCampaign {
+  id        String    @id @default(uuid())
+  sponsorId String
+  name      String
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+}
+
+model PartnershipRequest {
+  id            String   @id @default(uuid())
+  company       String
+  contactPerson String
+  email         String
+  phone         String?
+  website       String?
+  industry      String?
+  partnerType   String?
+  message       String?
+  budgetRange   String?
+  status        String   @default("PENDING") // PENDING, CONTACTED, IN_PROGRESS, ACCEPTED, DECLINED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ============================================
+// CONTACT & STAFF
+// ============================================
+
+model ContactRequest {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    String   @default("NEW") // NEW, READ, REPLIED, ARCHIVED
+  createdAt DateTime @default(now())
+}

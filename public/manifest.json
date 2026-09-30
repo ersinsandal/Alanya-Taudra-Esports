@@ -1,0 +1,25 @@
+{
+  "name": "ate-digital-arena",
+  "short_name": "ATE",
+  "description": "ATE Digital Arena — Alanya Taudra E-Sports platformu. Alanya'nın dijital e-spor altyapısı.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#D00000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/ate-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ate-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games", "sports", "entertainment"]
+}

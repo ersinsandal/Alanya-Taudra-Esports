@@ -1,0 +1,47 @@
+=============================================================
+           ATE DIGITAL ARENA - TEST GİRİŞ BİLGİLERİ
+=============================================================
+Bu bilgiler, veritabanı (PostgreSQL) çalıştığı zaman (online 
+olduğunda) kullanabileceğiniz rol bazlı test hesaplarıdır.
+
+Sistemin tüm yetki sınırlamalarını (RBAC) test edebilirsiniz.
+
+1. SUPER ADMIN (Sistem Kurucusu - Tüm Yetkiler)
+-------------------------------------------------------------
+Kullanıcı Adı: super_admin
+Email: admin@ate.gg
+Şifre: ChangeMeInProduction123!
+Yetki: Yepyeni oyun ekleme, sistem ayarlarını değiştirme ve tüm paneller.
+
+2. ADMIN (Yönetici)
+-------------------------------------------------------------
+Kullanıcı Adı: admin_kaan
+Email: admin@ate-esports.com
+Şifre: password123
+Yetki: Tüm tablolar, üyeler, banlama işlemleri, okul yönetimi.
+
+3. MODERATOR (İçerik Yöneticisi)
+-------------------------------------------------------------
+Kullanıcı Adı: mod_selin
+Email: mod@ate.gg
+Şifre: password123
+Yetki: Sadece Haberler, İçerik, Raporlar ve Medya görebilir.
+
+4. GAME LEADER (Oyun Lideri)
+-------------------------------------------------------------
+Kullanıcı Adı: leader_valorant
+Email: valorant@ate.gg
+Şifre: password123
+Yetki: Sadece Oyun Ekipleri ve Organizasyon (Turnuvalar) panelini görür.
+
+5. STANDART KULLANICI
+-------------------------------------------------------------
+Kullanıcı Adı: alp_fps
+Email: user@test.com
+Şifre: password123
+Yetki: Admin paneline (/admin) hiçbir şekilde giremez, ana sayfaya atılır.
+
+-------------------------------------------------------------
+Not: Localhost PostgreSQL veritabanınız kapalıyken 
+sistem Mock verilerle çalışır ve güvenlik/yetki doğrulaması 
+"Super Admin" yetkisi gibi simüle edilir.

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /api/
+Disallow: /scrims
+
+Sitemap: https://ate.gg/sitemap.xml
