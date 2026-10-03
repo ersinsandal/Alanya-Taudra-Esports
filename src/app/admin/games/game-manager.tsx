@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Gamepad2, Crosshair, Swords, Plus, Shield, Loader2, Play } from 'lucide-react';
 import { createGameAndCrew } from '../actions';
+import Link from 'next/link';
 
 interface GameManagerProps {
   initialGames: any[];
@@ -74,20 +75,12 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
             </div>
 
             <div className="p-5 relative z-10 -mt-6">
-              <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center border-2 border-primary-red text-primary-red mb-3 shadow-xl overflow-hidden p-1">
-                {game.icon ? (
-                  <img src={game.icon} alt={game.name} className="w-full h-full object-contain" />
-                ) : game.category === 'FPS' ? <Crosshair className="w-6 h-6" /> : 
-                 game.category === 'MOBA' ? <Swords className="w-6 h-6" /> : 
-                 <Gamepad2 className="w-6 h-6" />}
-              </div>
+              <h3 className="text-xl font-heading font-black text-white uppercase tracking-tight drop-shadow-md">{game.name}</h3>
               
-              <h3 className="text-xl font-heading font-black text-white uppercase tracking-tight">{game.name}</h3>
-              
-              <div className="mt-4 flex items-center gap-2 text-sm text-secondary bg-white/5 p-2 rounded-lg border border-white/5">
+              <Link href="/admin/crews" className="mt-4 flex items-center gap-2 text-sm text-secondary bg-white/5 hover:bg-white/10 transition-colors p-2 rounded-lg border border-white/5 w-fit">
                 <Shield className="w-4 h-4 text-green-500" />
                 <span>{game.crewName}</span>
-              </div>
+              </Link>
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import Image from "next/image";
 import Link from "next/link";
 import { Trophy, Medal, User, Swords, GraduationCap } from "lucide-react";
@@ -144,8 +144,12 @@ export default async function LeaderboardPage({
               return (
                 <Link
                   key={tab.value}
-                  href={/leaderboard?type=\&game=\}
-                  className={lex items-center px-6 py-3 rounded-full border text-sm font-bold transition-all whitespace-nowrap \}
+                  href={`/leaderboard?type=${tab.value}&game=${game}`}
+                  className={`flex items-center px-6 py-3 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                    type === tab.value
+                      ? 'bg-primary-red border-primary-red text-white shadow-[0_0_15px_rgba(255,31,45,0.4)]'
+                      : 'bg-panel border-white/10 text-secondary hover:bg-white/5 hover:text-white'
+                  }`}
                 >
                   <Icon className="w-4 h-4 mr-2" />
                   {tab.label}
@@ -158,8 +162,12 @@ export default async function LeaderboardPage({
             {games.map((g) => (
               <Link
                 key={g.value}
-                href={/leaderboard?type=\&game=\}
-                className={px-4 py-2 rounded-full border text-xs font-bold transition-all whitespace-nowrap \}
+                href={`/leaderboard?type=${type}&game=${g.value}`}
+                className={`px-4 py-2 rounded-full border text-xs font-bold transition-all whitespace-nowrap ${
+                  game === g.value
+                    ? 'bg-primary-red border-primary-red text-white'
+                    : 'bg-panel border-white/10 text-secondary hover:bg-white/5 hover:text-white'
+                }`}
               >
                 {g.label}
               </Link>
