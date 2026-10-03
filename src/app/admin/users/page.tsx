@@ -38,7 +38,7 @@ export default async function AdminUsersPage({
     where: { role: { name: { in: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'] } } }
   });
   const playerProfiles = await prisma.gameProfile.count();
-  const bannedCount = await prisma.user.count({ where: { isBanned: true } });
+  const bannedCount = await prisma.user.count({ where: { status: 'BANNED' } });
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full">
@@ -130,8 +130,8 @@ export default async function AdminUsersPage({
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 text-xs font-bold rounded \${u.isBanned ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                      {u.isBanned ? 'BANNED' : 'ACTIVE'}
+                    <span className={`px-2 py-1 text-xs font-bold rounded \${u.status === 'BANNED' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+                      {u.status}
                     </span>
                   </td>
                   <td className="p-4 text-right">

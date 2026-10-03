@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
 
   const stats = [
     { label: 'Toplam Üye', value: dbStats.users.toString(), icon: Users, color: 'text-blue-500' },
-    { label: 'Bu Ay Yeni', value: `+\${dbStats.newThisMonth}`, icon: UserPlus, color: 'text-green-500' },
+    { label: 'Bu Ay Yeni', value: `+${dbStats.newThisMonth}`, icon: UserPlus, color: 'text-green-500' },
     { label: 'Kayıtlı Oyuncu', value: dbStats.players.toString(), icon: Gamepad2, color: 'text-purple-500' },
     { label: 'Alanya Merkezli', value: dbStats.alanya.toString(), icon: MapPin, color: 'text-red-500' },
     { label: 'Topluluk Ekipleri', value: dbStats.crews.toString(), icon: Users, color: 'text-indigo-500' },
