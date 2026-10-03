@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { Trophy, Plus, Edit2, Trash2, Users, Calendar } from "lucide-react";
 import Link from "next/link";
 
@@ -48,7 +48,11 @@ export default async function TournamentsAdminPage() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <span className={px-2 py-1 text-xs font-bold rounded uppercase \}>
+                  <span className={`px-2 py-1 text-xs font-bold rounded uppercase \${
+                    t.status === 'UPCOMING' ? 'bg-yellow-500/10 text-yellow-500' :
+                    t.status === 'LIVE' ? 'bg-green-500/10 text-green-500' :
+                    'bg-white/10 text-secondary'
+                  }`}>
                     {t.status}
                   </span>
                 </td>

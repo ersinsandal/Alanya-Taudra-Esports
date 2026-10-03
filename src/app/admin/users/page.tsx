@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Users, Search, Shield, Gamepad2, Ban, MoreVertical } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -113,7 +113,7 @@ export default async function AdminUsersPage({
                 <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                   <td className="p-4 text-xs font-mono text-secondary">{u.ateId || 'YOK'}</td>
                   <td className="p-4 font-bold text-white">
-                    <Link href={/admin/users/\} className="hover:text-blue-400">
+                    <Link href={`/admin/users/\${u.id}`} className="hover:text-blue-400">
                       {u.username}
                     </Link>
                   </td>
@@ -130,7 +130,7 @@ export default async function AdminUsersPage({
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={px-2 py-1 text-xs font-bold rounded \}>
+                    <span className={`px-2 py-1 text-xs font-bold rounded \${u.isBanned ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
                       {u.isBanned ? 'BANNED' : 'ACTIVE'}
                     </span>
                   </td>

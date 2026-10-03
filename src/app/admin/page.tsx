@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
           return (
             <div key={idx} className="bg-panel border border-white/5 rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group">
               <div className="absolute -right-4 -top-4 w-16 h-16 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-              <Icon className={w-6 h-6 \} />
+              <Icon className={`w-6 h-6 \${stat.color}`} />
               <div>
                 <div className="text-2xl font-bold text-white font-space">{stat.value}</div>
                 <div className="text-xs text-secondary mt-1 uppercase tracking-wider">{stat.label}</div>

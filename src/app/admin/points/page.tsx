@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { Plus, Edit2, Trash2, Coins } from "lucide-react";
 
 export default async function PointsAdminPage() {
@@ -42,7 +42,7 @@ export default async function PointsAdminPage() {
                   <div className="text-xs text-[#99999F] mt-1">{t.description}</div>
                 </td>
                 <td className="p-4">
-                  <div className={	ext-sm font-bold flex items-center gap-1 \}>
+                  <div className={`text-sm font-bold flex items-center gap-1 \${t.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
                     <Coins className="w-4 h-4" />
                     {t.amount > 0 ? '+' : ''}{t.amount}
                   </div>
