@@ -58,10 +58,10 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
         {games.map(game => (
           <div key={game.id} className="bg-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/20 transition-all group">
             <div className="h-32 relative bg-black border-b border-white/5">
-              {game.crewLogo ? (
+              {game.crewLogo || game.icon ? (
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity"
-                  style={{ backgroundImage: `url(${game.crewLogo})` }}
+                  style={{ backgroundImage: `url(${game.crewLogo || game.icon})`, backgroundPosition: 'center 25%' }}
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-red/20 to-black/80" />

@@ -217,8 +217,12 @@ export default function DashboardClient({ user, stats, teams, applications }: an
                 {gameProfiles.map((game: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-secondary/40 border border-border/40">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red">
-                        {(game.game?.name || 'GAM').substring(0, 3).toUpperCase()}
+                      <div className="w-8 h-8 rounded bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red overflow-hidden p-0.5">
+                        {game.game?.icon ? (
+                          <img src={game.game.icon} alt={game.game.name} className="w-full h-full object-cover rounded-sm" />
+                        ) : (
+                          (game.game?.name || 'GAM').substring(0, 3).toUpperCase()
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-bold text-primary-text leading-tight">{game.game?.name}</p>
