@@ -74,8 +74,10 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
             </div>
 
             <div className="p-5 relative z-10 -mt-6">
-              <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center border-2 border-primary-red text-primary-red mb-3 shadow-xl">
-                {game.category === 'FPS' ? <Crosshair className="w-6 h-6" /> : 
+              <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center border-2 border-primary-red text-primary-red mb-3 shadow-xl overflow-hidden p-1">
+                {game.icon ? (
+                  <img src={game.icon} alt={game.name} className="w-full h-full object-contain" />
+                ) : game.category === 'FPS' ? <Crosshair className="w-6 h-6" /> : 
                  game.category === 'MOBA' ? <Swords className="w-6 h-6" /> : 
                  <Gamepad2 className="w-6 h-6" />}
               </div>

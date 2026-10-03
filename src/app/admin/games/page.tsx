@@ -20,6 +20,7 @@ export default async function GamesAdminPage() {
     dbGames = rawGames.map(g => ({
       id: g.id,
       name: g.name,
+      icon: g.icon,
       category: g.category,
       isActive: g.isActive,
       crewName: g.crews?.[0]?.name || 'Ekip Yok',

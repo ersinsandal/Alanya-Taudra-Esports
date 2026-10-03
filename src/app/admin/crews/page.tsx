@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { prisma } from '@/lib/db';
 import { Shield, Users, Trophy } from 'lucide-react';
 import Link from 'next/link';
@@ -20,6 +20,8 @@ export default async function CrewsPage() {
     id: c.id,
     name: c.name,
     gameName: c.game.name,
+    logoUrl: c.logoUrl,
+    gameIcon: c.game.icon,
     memberCount: c._count.members,
     status: 'Aktif'
   }));
@@ -39,8 +41,12 @@ export default async function CrewsPage() {
         {crews.map((crew) => (
           <div key={crew.id} className="bg-panel border border-white/10 rounded-xl p-6 hover:border-primary-red/50 transition-colors group">
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 bg-primary-red/10 rounded-lg flex items-center justify-center text-primary-red">
-                <Shield className="w-6 h-6" />
+              <div className="w-12 h-12 bg-primary-red/10 rounded-lg flex items-center justify-center text-primary-red overflow-hidden p-1">
+                {crew.logoUrl || crew.gameIcon ? (
+                  <img src={crew.logoUrl || crew.gameIcon} alt={crew.name} className="w-full h-full object-contain" />
+                ) : (
+                  <Shield className="w-6 h-6" />
+                )}
               </div>
               <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-xs font-medium">
                 {crew.status}
