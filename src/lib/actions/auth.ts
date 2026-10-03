@@ -25,7 +25,7 @@ export async function login(formData: FormData) {
 
   const { identifier, password } = result.data
   const cleanId = identifier.trim().toLowerCase()
-  let user: any = null
+  let user: import('@prisma/client').User & { roles: { role: import('@prisma/client').Role }[] } | null = null
   try {
     user = await prisma.user.findFirst({
       where: {

@@ -110,7 +110,7 @@ export default function DashboardClient({ user, stats, teams, applications }: an
   const [userGames, setUserGames] = useState<Array<{ name: string; tag: string }>>([
     { name: "VALORANT", tag: "Player#TR1" }
   ]);
-  const username = "User";
+  const username = user?.username || "User";
 
   const handleAddGame = (game: { name: string; tag: string }) => {
     setUserGames(prev => [...prev.filter(g => g.name !== game.name), game]);

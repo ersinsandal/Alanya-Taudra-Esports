@@ -7,19 +7,19 @@ export function JoinSection() {
       title: 'Oyuncu',
       desc: 'Topluluğa katıl, arkadaşlarınla rekabet et.',
       icon: Gamepad2,
-      href: '/login',
+      href: '/register',
     },
     {
       title: 'Oyun Lideri',
       desc: 'Oyun ekiplerine liderlik et, etkinlikleri yönet.',
       icon: Crown,
-      href: '/login',
+      href: '/register',
     },
     {
       title: 'İçerik Üreticisi',
       desc: 'ATE ailesinin yüzü ol, yayınlarını duyur.',
       icon: Video,
-      href: '/login',
+      href: '/register',
     },
     {
       title: 'Okul Temsilcisi',
@@ -31,13 +31,13 @@ export function JoinSection() {
       title: 'Turnuva Hakemi',
       desc: 'Maçları yönet, adil rekabeti sağla.',
       icon: Swords,
-      href: '/login',
+      href: '/register',
     },
     {
       title: 'Topluluk Yöneticisi',
       desc: 'Platform düzenini ve sohbetleri denetle.',
       icon: Headset,
-      href: '/login',
+      href: '/register',
     },
   ];
 

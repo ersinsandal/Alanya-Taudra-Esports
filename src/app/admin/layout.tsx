@@ -16,7 +16,7 @@ export default async function AdminLayout({
   // Check if user has any of the admin-level roles
   let highestRole: 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'GAME_LEADER' | 'USER' = 'USER';
   
-  const hasRole = (roleName: string) => user.roles?.some((ur: any) => ur.role.name === roleName);
+  const hasRole = (roleName: string) => user.roles?.some((ur: { role: { name: string } }) => ur.role.name === roleName);
 
   if (hasRole('SUPER_ADMIN')) {
     highestRole = 'SUPER_ADMIN';

@@ -75,7 +75,7 @@ export default async function HomePage() {
     });
     
     if (dbCrews.length > 0) {
-      crews = dbCrews.map((c: any) => ({
+      crews = dbCrews.map(c => ({
         id: c.id,
         name: (c.game?.name || c.name) + ' Ekibi',
         game: c.game?.name || 'Espor',

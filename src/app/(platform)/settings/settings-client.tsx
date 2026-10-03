@@ -73,13 +73,34 @@ export default function SettingsClient({ user }: { user: any }) {
     fc25: "SniperStriker",
   });
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingAction("profile");
-    setTimeout(() => {
+    try {
+      const { updateProfile } = await import('@/lib/actions/profile');
+      const res = await updateProfile(profile);
+      if (res.success) {
+        showToast("Profil bilgileriniz başarıyla güncellendi!");
+      } else {
+        showToast(res.error || "Hata oluştu", "error");
+      }
+    } catch (e) {
+      showToast("Bir hata oluştu", "error");
+    } finally {
       setLoadingAction(null);
-      showToast("Profil bilgileriniz başarıyla güncellendi!");
-    }, 600);
+    }
+  };
+
+  const handleRequestChange = async (type: string) => {
+    try {
+      showToast(`\${type} değiştirme talebiniz yöneticiye iletildi.`, "info");
+      await fetch('/api/profile/request-change', {
+        method: 'POST',
+        body: JSON.stringify({ type })
+      });
+    } catch(e) {
+      // ignore
+    }
   };
 
   const handlePasswordUpdate = (e: React.FormEvent) => {
@@ -248,25 +269,43 @@ export default function SettingsClient({ user }: { user: any }) {
             <form onSubmit={handleProfileSave} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-secondary-text">Ad</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-secondary-text">Ad</label>
+                    <button type="button" onClick={() => handleRequestChange('İsim')} className="text-xs text-blue-500 hover:underline">Değişiklik Talep Et</button>
+                  </div>
                   <input 
                     type="text" 
                     value={profile.firstName}
                     disabled
-                      onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                    className="w-full bg-secondary border border-border/50 rounded-lg px-4 py-2 text-primary-text focus:outline-none focus:border-primary-red" 
+                    onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2 text-primary-text/70 focus:outline-none cursor-not-allowed" 
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-secondary-text">Soyad</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-secondary-text">Soyad</label>
+                    <button type="button" onClick={() => handleRequestChange('Soyisim')} className="text-xs text-blue-500 hover:underline">Değişiklik Talep Et</button>
+                  </div>
                   <input 
                     type="text" 
                     value={profile.lastName}
                     disabled
-                      onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                    className="w-full bg-secondary border border-border/50 rounded-lg px-4 py-2 text-primary-text focus:outline-none focus:border-primary-red" 
+                    onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                    className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2 text-primary-text/70 focus:outline-none cursor-not-allowed" 
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-secondary-text">Okul / Üniversite</label>
+                  <button type="button" onClick={() => handleRequestChange('Okul')} className="text-xs text-blue-500 hover:underline">Değişiklik Talep Et</button>
+                </div>
+                <input 
+                  type="text" 
+                  value={user.profile?.school?.name || user.profile?.university?.name || 'Okul Bilgisi Yok'}
+                  disabled
+                  className="w-full bg-secondary/50 border border-border/50 rounded-lg px-4 py-2 text-primary-text/70 focus:outline-none cursor-not-allowed" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-secondary-text">Biyografi</label>

@@ -1,137 +1,143 @@
-"use client";
+﻿import Link from "next/link";
+import { Users, Search, Shield, Gamepad2, Ban, MoreVertical } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
-import { useState } from "react";
-import Link from "next/link";
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Shield,
-  Gamepad2,
-  Ban
-} from "lucide-react";
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const user = await getCurrentUser();
+  const roles = user?.roles?.map((r: any) => r.role.name) || [];
+  if (!roles.includes('SUPER_ADMIN') && !roles.includes('ADMIN')) {
+    redirect('/admin');
+  }
 
-export default function AdminUsersPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  const mockUsers = [
-    { id: "1", ateId: "ATE-001-A9F2", username: "Phantom", email: "phantom@example.com", roles: ["PLAYER"], status: "ACTIVE", gameCount: 2, createdAt: "2024-09-15" },
-    { id: "2", ateId: "ATE-002-B8E3", username: "AdminMehmet", email: "mehmet@ate.com", roles: ["ADMIN"], status: "ACTIVE", gameCount: 0, createdAt: "2024-09-10" },
-    { id: "3", ateId: "ATE-003-C7D4", username: "ToxicityKing", email: "toxic@example.com", roles: ["PLAYER"], status: "BANNED", gameCount: 1, createdAt: "2024-09-18" },
-    { id: "4", ateId: "ATE-004-D6C5", username: "AlanyaRep", email: "rep@alanya.edu", roles: ["SCHOOL_REP", "PLAYER"], status: "ACTIVE", gameCount: 3, createdAt: "2024-09-20" },
-    { id: "5", ateId: "ATE-005-E5B6", username: "CS2Leader", email: "cs2@example.com", roles: ["GAME_LEADER", "PLAYER"], status: "ACTIVE", gameCount: 2, createdAt: "2024-09-22" },
-  ];
+  const { q } = await searchParams;
+
+  const users = await prisma.user.findMany({
+    where: q ? {
+      OR: [
+        { username: { contains: q } },
+        { email: { contains: q } },
+        { ateId: { contains: q } }
+      ]
+    } : undefined,
+    include: {
+      roles: { include: { role: true } },
+      gameProfiles: true
+    },
+    take: 50,
+    orderBy: { createdAt: 'desc' }
+  });
+
+  const totalUsers = await prisma.user.count();
+  const adminCount = await prisma.userRole.count({
+    where: { role: { name: { in: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'] } } }
+  });
+  const playerProfiles = await prisma.gameProfile.count();
+  const bannedCount = await prisma.user.count({ where: { isBanned: true } });
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-heading text-primary-text">
+        <h1 className="text-3xl font-bold font-heading text-white">
           ÜYE YÖNETİMİ
         </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-panel border border-border/50 rounded-xl p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-secondary-text">
+        <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-secondary">
             <Users className="w-4 h-4" />
             <span className="text-sm font-medium">Toplam Üye</span>
           </div>
-          <span className="text-3xl font-bold text-primary-text">1,245</span>
+          <span className="text-3xl font-bold text-white">{totalUsers}</span>
         </div>
-        <div className="bg-panel border border-border/50 rounded-xl p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-secondary-text">
+        <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-secondary">
             <Shield className="w-4 h-4" />
             <span className="text-sm font-medium">Yetkili Sayısı</span>
           </div>
-          <span className="text-3xl font-bold text-primary-text">12</span>
+          <span className="text-3xl font-bold text-white">{adminCount}</span>
         </div>
-        <div className="bg-panel border border-border/50 rounded-xl p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-secondary-text">
-            <Ban className="w-4 h-4 text-primary-red" />
-            <span className="text-sm font-medium">Banlı Üye</span>
-          </div>
-          <span className="text-3xl font-bold text-primary-red">8</span>
-        </div>
-        <div className="bg-panel border border-border/50 rounded-xl p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-secondary-text">
+        <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-secondary">
             <Gamepad2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Oyun Ekibi Liderleri</span>
+            <span className="text-sm font-medium">Oyun Profilleri</span>
           </div>
-          <span className="text-3xl font-bold text-primary-text">4</span>
+          <span className="text-3xl font-bold text-white">{playerProfiles}</span>
+        </div>
+        <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-primary-red">
+            <Ban className="w-4 h-4" />
+            <span className="text-sm font-medium">Uzaklaştırılanlar</span>
+          </div>
+          <span className="text-3xl font-bold text-white">{bannedCount}</span>
         </div>
       </div>
 
-      <div className="bg-panel border border-border/50 rounded-xl overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-border/50 flex flex-wrap gap-4 items-center justify-between">
-          <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-secondary-text" />
+      <div className="bg-panel border border-white/5 rounded-xl p-6">
+        <form className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary" />
             <input 
               type="text" 
-              placeholder="Üye ara (ATE ID, Ad)" 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-secondary border border-border/50 rounded-lg pl-9 pr-4 py-2 text-sm text-primary-text focus:outline-none focus:border-primary-red"
+              name="q"
+              defaultValue={q}
+              placeholder="Kullanıcı adı, e-posta veya ATE ID ara..." 
+              className="w-full bg-[#050505] border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-secondary focus:outline-none focus:border-white/30"
             />
           </div>
-          <div className="flex gap-2">
-            <button className="flex items-center gap-2 px-4 py-2 bg-secondary border border-border/50 rounded-lg text-sm font-medium text-primary-text hover:bg-white/5 transition-colors cursor-pointer">
-              <Filter className="w-4 h-4" />
-              Rol Filtresi
-            </button>
-          </div>
-        </div>
-        
+          <button type="submit" className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-colors whitespace-nowrap">
+            Ara
+          </button>
+        </form>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-secondary/50 border-b border-border/50">
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase">Üye</th>
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase">ATE ID</th>
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase">Roller</th>
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase">Oyunlar</th>
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase">Durum</th>
-                <th className="p-4 text-xs font-semibold text-secondary-text uppercase text-right">İşlemler</th>
+              <tr className="border-b border-white/5 text-xs text-secondary">
+                <th className="p-4 font-medium w-32">ATE ID</th>
+                <th className="p-4 font-medium">KULLANICI ADI</th>
+                <th className="p-4 font-medium">E-POSTA</th>
+                <th className="p-4 font-medium">ROLLER</th>
+                <th className="p-4 font-medium">DURUM</th>
+                <th className="p-4 font-medium text-right">İŞLEMLER</th>
               </tr>
             </thead>
             <tbody>
-              {mockUsers.map((user) => (
-                <tr key={user.id} className="border-b border-border/50 hover:bg-white/5 transition-colors">
-                  <td className="p-4">
-                    <div>
-                      <p className="font-medium text-primary-text">{user.username}</p>
-                      <p className="text-xs text-secondary-text">{user.email}</p>
-                    </div>
+              {users.map((u) => (
+                <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="p-4 text-xs font-mono text-secondary">{u.ateId || 'YOK'}</td>
+                  <td className="p-4 font-bold text-white">
+                    <Link href={/admin/users/\} className="hover:text-blue-400">
+                      {u.username}
+                    </Link>
                   </td>
-                  <td className="p-4 font-mono text-sm text-primary-text">{user.ateId}</td>
+                  <td className="p-4 text-sm text-secondary">{u.email}</td>
                   <td className="p-4">
-                    <div className="flex gap-1 flex-wrap">
-                      {user.roles.map(r => (
-                        <span key={r} className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          r === 'ADMIN' ? 'bg-[#FF1F2D]/20 text-[#FF1F2D] border border-[#FF1F2D]/30' :
-                          r === 'GAME_LEADER' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                          r === 'SCHOOL_REP' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                          'bg-secondary text-secondary-text border border-border/50'
-                        }`}>
-                          {r}
+                    <div className="flex flex-wrap gap-1">
+                      {u.roles.length > 0 ? u.roles.map(r => (
+                        <span key={r.roleId} className="px-2 py-0.5 bg-white/10 text-white text-[10px] rounded uppercase font-bold">
+                          {r.role.name}
                         </span>
-                      ))}
+                      )) : (
+                        <span className="px-2 py-0.5 bg-white/10 text-white text-[10px] rounded uppercase font-bold">USER</span>
+                      )}
                     </div>
                   </td>
-                  <td className="p-4 text-sm text-secondary-text">{user.gameCount} Bağlı Profil</td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      user.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-primary-red/10 text-primary-red'
-                    }`}>
-                      {user.status === 'ACTIVE' ? 'Aktif' : 'Banlı'}
+                    <span className={px-2 py-1 text-xs font-bold rounded \}>
+                      {u.isBanned ? 'BANNED' : 'ACTIVE'}
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <Link 
-                      href={`/admin/users/${user.id}`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-secondary hover:bg-secondary/80 border border-border/50 rounded-lg text-sm text-primary-text transition-colors"
-                    >
-                      Yönet
-                    </Link>
+                    <button className="p-2 text-secondary hover:text-white transition-colors">
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
