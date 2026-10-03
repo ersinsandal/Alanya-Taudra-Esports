@@ -1,4 +1,4 @@
-﻿import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import DashboardClient from './dashboard-client';
@@ -21,16 +21,27 @@ export default async function DashboardPage() {
     where: { userId: user.id }
   });
 
-  // Profil doluluğu hesabı (basit)
-  let completion = 20;
-  if (user.profile?.firstName) completion += 20;
-  if (user.profile?.lastName) completion += 20;
-  if (user.phone) completion += 20;
+  const matchCount = await prisma.match.count({
+    where: {
+      OR: [
+        { teamA: { members: { some: { userId: user.id } } } },
+        { teamB: { members: { some: { userId: user.id } } } }
+      ]
+    }
+  });
+
+  // Profil doluluğu hesabı (daha kapsamlı)
+  let completion = 10;
+  if (user.profile?.firstName) completion += 15;
+  if (user.profile?.lastName) completion += 15;
+  if (user.phone) completion += 10;
   if (user.profile?.discordUsername) completion += 20;
+  if (user.profile?.bio) completion += 10;
+  if (user.profile?.schoolId || user.profile?.universityId) completion += 20;
 
   const stats = {
     score: points._sum.amount || 0,
-    matches: 0, // TODO: Implement matches calculation
+    matches: matchCount,
     teams: teamCount,
     achievements: achievementCount,
     profileCompletion: completion

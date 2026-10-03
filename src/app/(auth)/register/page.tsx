@@ -7,6 +7,7 @@ import { MapPin, Globe, Check, Loader2, X, School, GraduationCap } from 'lucide-
 import Image from 'next/image';
 import Link from 'next/link';
 import { alanyaSchools } from '@/lib/data/schools';
+import { register } from '@/lib/actions/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -70,8 +71,30 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setStep(5);
+      const result = await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone || undefined,
+        birthDate: formData.birthDate,
+        isAlanya: formData.location === 'alanya',
+        city: formData.city || undefined,
+        country: formData.country,
+        studentStatus: formData.userType === 'lise' ? 'HIGH_SCHOOL' : formData.userType === 'universite' ? 'UNIVERSITY' : undefined,
+        schoolId: formData.schoolId || undefined,
+        universityId: formData.universityId || undefined,
+        discordUsername: formData.discord || undefined,
+        purpose: [formData.purpose].filter(Boolean),
+      });
+      if (result.success && result.data) {
+        setAteId(result.data.ateId);
+        setStep(5);
+      } else {
+        console.error(result.error);
+        // Could show error toast here
+      }
     } catch (error) {
       console.error(error);
     } finally {

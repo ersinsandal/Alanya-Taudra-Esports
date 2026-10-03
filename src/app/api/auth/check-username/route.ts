@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,12 +9,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ available: false, error: 'Username required' }, { status: 400 });
   }
 
-  // Basic mock implementation. Would normally query database and reserved lists here.
-  const reservedUsernames = ['admin', 'root', 'system', 'ate', 'ateesports'];
+  const reservedUsernames = ['admin', 'root', 'system', 'ate', 'ateesports', 'administrator'];
   
   if (reservedUsernames.includes(username.toLowerCase())) {
     return NextResponse.json({ available: false });
   }
 
-  return NextResponse.json({ available: true });
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { username: username.toLowerCase() }
+    });
+
+    return NextResponse.json({ available: !existingUser });
+  } catch (error) {
+    return NextResponse.json({ available: false, error: 'Database check failed' }, { status: 500 });
+  }
 }

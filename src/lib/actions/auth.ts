@@ -25,11 +25,6 @@ export async function login(formData: FormData) {
 
   const { identifier, password } = result.data
   const cleanId = identifier.trim().toLowerCase()
-  const defaultAdminPass = process.env.SEED_DEFAULT_PASSWORD || 'ChangeMeInProduction123!'
-
-  // Fast-path / fallback for admin login in dev or when DB is offline
-  const isDevAdmin = (cleanId === 'admin@ate.gg' || cleanId === 'ateadmin' || cleanId === 'admin') && password === defaultAdminPass
-
   let user: any = null
   try {
     user = await prisma.user.findFirst({
@@ -46,14 +41,8 @@ export async function login(formData: FormData) {
       }
     })
   } catch (dbErr) {
-    console.warn("DB offline during login query, checking dev fallback:", dbErr)
-  }
-
-  if (!user && isDevAdmin) {
-    const token = crypto.randomUUID()
-    const refreshToken = crypto.randomUUID()
-    await setSessionCookie(token, refreshToken)
-    return { success: true, redirectUrl: '/admin' }
+    console.error("DB connection error during login:", dbErr)
+    return { success: false, error: 'Veritabanına bağlanılamadı. Lütfen daha sonra tekrar deneyin.' }
   }
 
   if (!user || !user.passwordHash) {

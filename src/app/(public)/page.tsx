@@ -18,13 +18,22 @@ export default async function HomePage() {
   let nextMatch = null;
 
   try {
-    const [memberCount, schoolCount, uniCount, crewCount, tourneyCount] = await Promise.all([
+    const [memberCount, schoolCount, uniCount, crewCount, tourneyCount, upcomingMatch] = await Promise.all([
       prisma.user.count(),
       prisma.school.count(),
       prisma.university.count(),
       prisma.crew.count(),
-      prisma.tournament.count()
+      prisma.tournament.count(),
+      prisma.match.findFirst({
+        where: { scheduledAt: { gte: new Date() } },
+        orderBy: { scheduledAt: 'asc' },
+        include: { teamA: true, teamB: true, tournament: true }
+      })
     ]);
+
+    if (upcomingMatch) {
+      nextMatch = upcomingMatch;
+    }
 
     stats = {
       members: memberCount,
