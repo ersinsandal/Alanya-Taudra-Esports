@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+﻿import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import DashboardClient from './dashboard-client';
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     }
   });
 
-  // Profil doluluğu hesabı (daha kapsamlı)
+  // Profil doluluÄŸu hesabÄ± (daha kapsamlÄ±)
   let completion = 10;
   if (user.profile?.firstName) completion += 15;
   if (user.profile?.lastName) completion += 15;
@@ -61,6 +61,8 @@ export default async function DashboardPage() {
     include: { team: true }
   });
 
+  const gameProfiles = await prisma.gameProfile.findMany({ where: { userId: user.id }, include: { game: true } });
+
   const mappedUser = {
     id: user.id,
     username: user.username,
@@ -68,5 +70,6 @@ export default async function DashboardPage() {
     lastName: user.profile?.lastName
   };
 
-  return <DashboardClient user={mappedUser} stats={stats} teams={dbTeams} applications={applications} />;
+  return <DashboardClient user={mappedUser} stats={stats} teams={dbTeams} applications={applications} gameProfiles={gameProfiles} />;
 }
+

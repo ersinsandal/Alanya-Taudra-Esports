@@ -151,18 +151,34 @@ export default function DashboardClient({ user, stats, teams, applications }: an
               <Users className="w-5 h-5 text-primary-red" />
               Takım Durumu
             </h2>
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
-                <Users className="w-8 h-8 text-secondary-text" />
+            {teams && teams.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {teams.map((t: any) => (
+                  <div key={t.id} className="p-4 rounded-xl bg-secondary/30 border border-border/30 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red">
+                        {t.team?.name?.substring(0,2).toUpperCase()}
+                      </div>
+                      <span className="font-bold text-primary-text">{t.team?.name}</span>
+                    </div>
+                    <span className="text-xs text-secondary-text mt-2 uppercase">{t.role}</span>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-lg font-medium text-primary-text mb-2">Henüz takımın yok.</h3>
-              <p className="text-sm text-secondary-text mb-6 max-w-sm">
-                Bir takıma katılarak turnuvalarda yer alabilir, scrim maçlarına çıkabilirsin.
-              </p>
-              <Link href="/teams" className="px-6 py-2 bg-primary-red text-primary-text font-medium rounded-lg hover:bg-deep-red transition-colors">
-                Takım Bul
-              </Link>
-            </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
+                  <Users className="w-8 h-8 text-secondary-text" />
+                </div>
+                <h3 className="text-lg font-medium text-primary-text mb-2">Henüz takımın yok.</h3>
+                <p className="text-sm text-secondary-text mb-6 max-w-sm">
+                  Bir takıma katılarak turnuvalarda yer alabilir, scrim maçlarına çıkabilirsin.
+                </p>
+                <Link href="/teams" className="px-6 py-2 bg-primary-red text-primary-text font-medium rounded-lg hover:bg-deep-red transition-colors">
+                  Takım Bul
+                </Link>
+              </div>
+            )}
           </section>
 
           {/* Yaklaşan Etkinlikler */}
@@ -186,7 +202,7 @@ export default function DashboardClient({ user, stats, teams, applications }: an
                 <Gamepad2 className="w-5 h-5 text-primary-red" />
                 Oyun Profilleri
               </h2>
-              {userGames.length > 0 && (
+              {gameProfiles && gameProfiles.length > 0 && (
                 <button 
                   onClick={() => setIsGameModalOpen(true)}
                   className="text-xs bg-primary-red/10 text-primary-red hover:bg-primary-red hover:text-white px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer"
@@ -196,17 +212,17 @@ export default function DashboardClient({ user, stats, teams, applications }: an
               )}
             </div>
             
-            {userGames.length > 0 ? (
+            {gameProfiles && gameProfiles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {userGames.map((game, idx) => (
+                {gameProfiles.map((game: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-secondary/40 border border-border/40">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red">
-                        {game.name.substring(0, 3).toUpperCase()}
+                        {(game.game?.name || 'GAM').substring(0, 3).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-primary-text leading-tight">{game.name}</p>
-                        <p className="text-xs text-secondary-text font-mono">{game.tag}</p>
+                        <p className="text-sm font-bold text-primary-text leading-tight">{game.game?.name}</p>
+                        <p className="text-xs text-secondary-text font-mono">{game.gameUsername}</p>
                       </div>
                     </div>
                     <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-medium">
@@ -261,13 +277,23 @@ export default function DashboardClient({ user, stats, teams, applications }: an
               Başvurularım
             </h2>
             <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/30">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-4 h-4 text-warning" />
-                  <span className="text-sm font-medium text-primary-text">VALORANT Oyun Liderliği</span>
+              {applications && applications.length > 0 ? applications.map((app: any) => (
+                <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/30">
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-warning" />
+                    <span className="text-sm font-medium text-primary-text">{app.team?.name || 'Takım Başvurusu'}</span>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded \${
+                    app.status === 'PENDING' ? 'bg-warning/20 text-warning' : 
+                    app.status === 'APPROVED' ? 'bg-green-500/20 text-green-500' : 
+                    'bg-red-500/20 text-red-500'
+                  }`}>
+                    {app.status}
+                  </span>
                 </div>
-                <span className="text-xs bg-warning/20 text-warning px-2 py-1 rounded">Bekliyor</span>
-              </div>
+              )) : (
+                <p className="text-sm text-secondary-text text-center py-4">Henüz bir takım başvurunuz bulunmuyor.</p>
+              )}
             </div>
           </section>
 
