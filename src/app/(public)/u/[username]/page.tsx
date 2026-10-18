@@ -70,10 +70,17 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
       <div className="bg-panel border border-white/5 rounded-xl p-6 md:p-8 mb-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-red to-accent-red"></div>
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center">
-          <Avatar className="w-20 h-20 md:w-24 md:h-24 border-2 border-primary-red shadow-lg shrink-0">
-            <AvatarImage src={user.profile.avatarUrl || ''} />
-            <AvatarFallback><User className="w-10 h-10 md:w-12 md:h-12" /></AvatarFallback>
-          </Avatar>
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-primary-red shadow-[0_0_20px_rgba(208,0,0,0.3)] overflow-hidden bg-black/60 flex items-center justify-center shrink-0 relative">
+            {user.profile.avatarUrl ? (
+              <img 
+                src={user.profile.avatarUrl} 
+                alt={user.username} 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              <User className="w-10 h-10 md:w-12 md:h-12 text-secondary-text" />
+            )}
+          </div>
           
           <div className="flex-1 w-full min-w-0">
             <div className="flex justify-between items-start w-full">
