@@ -7,7 +7,7 @@ import { NewsSection } from '@/components/features/home/news-section';
 import { JoinSection } from '@/components/features/home/join-section';
 import { PartnersSection } from '@/components/features/home/partners-section';
 import { prisma } from '@/lib/db';
-import { mockCrews } from '@/lib/data/mock-crews';
+
 
 export default async function HomePage() {
   let stats = { members: 0, players: 0, schools: 0, crews: 0, tournaments: 0, events: 0 };
@@ -32,7 +32,13 @@ export default async function HomePage() {
     ]);
 
     if (upcomingMatch) {
-      nextMatch = upcomingMatch;
+      nextMatch = {
+        ...upcomingMatch,
+        homeTeam: { name: upcomingMatch.teamA.name, logo: upcomingMatch.teamA.logoUrl },
+        awayTeam: { name: upcomingMatch.teamB.name, logo: upcomingMatch.teamB.logoUrl },
+        tournamentName: upcomingMatch.tournament?.name || 'Özel Maç',
+        date: upcomingMatch.scheduledAt || new Date()
+      };
     }
 
     stats = {
@@ -74,18 +80,14 @@ export default async function HomePage() {
       select: { id: true, name: true, slug: true, _count: { select: { members: true } }, game: { select: { name: true, slug: true } } } 
     });
     
-    if (dbCrews.length > 0) {
-      crews = dbCrews.map(c => ({
-        id: c.id,
-        name: (c.game?.name || c.name) + ' Ekibi',
-        game: c.game?.name || 'Espor',
-        memberCount: c._count.members,
-        slug: c.slug,
-        cover: getHomeCover(c.game?.name || '')
-      }));
-    } else {
-      crews = mockCrews.slice(0, 4);
-    }
+    crews = dbCrews.map(c => ({
+      id: c.id,
+      name: (c.game?.name || c.name) + ' Ekibi',
+      game: c.game?.name || 'Espor',
+      memberCount: c._count.members,
+      slug: c.slug,
+      cover: getHomeCover(c.game?.name || '')
+    }));
 
 
     const dbTournaments = await prisma.tournament.findMany({
@@ -124,8 +126,7 @@ export default async function HomePage() {
     });
 
   } catch (error) {
-    console.warn("DB Error on HomePage, using fallback data for crews.");
-    crews = mockCrews.slice(0, 4);
+    console.error("DB Error on HomePage:", error);
   }
 
   return (

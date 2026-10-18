@@ -83,9 +83,9 @@ export default function MatchDetailPage() {
               onChange={(e) => setMvp(e.target.value)}
               className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D00000]"
             >
-              <option value="">MVP Seçiniz...</option>
+              <option className="bg-[#050505] text-white" value="">MVP Seçiniz...</option>
               {allPlayers.map(p => (
-                <option key={p} value={p}>{p}</option>
+                <option className="bg-[#050505] text-white" key={p} value={p}>{p}</option>
               ))}
             </select>
           </div>

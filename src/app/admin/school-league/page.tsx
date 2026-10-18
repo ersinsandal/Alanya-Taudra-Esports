@@ -4,20 +4,23 @@ import { Trophy, Calendar, CheckCircle2, Search } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function SchoolLeagueAdminPage() {
-  let standings = [];
+  let standings: any[] = [];
   try {
-    // We would fetch actual league data here, perhaps aggregating matches 
-    // where tournament.isSchoolLeague === true
-    // For now, we mock the leaderboard structure assuming it will be generated via a complex query
-    throw new Error('Offline fallback');
+    const schools = await prisma.school.findMany({
+      orderBy: { name: 'asc' },
+      take: 20
+    });
+    standings = schools.map((s, index) => ({
+      rank: index + 1,
+      school: s.name,
+      played: 0,
+      won: 0,
+      lost: 0,
+      draw: 0,
+      points: 0,
+    }));
   } catch (error) {
-    standings = [
-      { rank: 1, school: 'Alanya Bahçeşehir Koleji', played: 6, won: 6, lost: 0, draw: 0, points: 18 },
-      { rank: 2, school: 'Alanya Fen Lisesi', played: 6, won: 5, lost: 1, draw: 0, points: 15 },
-      { rank: 3, school: 'Alanya Anadolu Lisesi', played: 6, won: 4, lost: 1, draw: 1, points: 13 },
-      { rank: 4, school: 'ALKÜ Vakfı Koleji', played: 6, won: 3, lost: 2, draw: 1, points: 10 },
-      { rank: 5, school: 'Gazipaşa Anadolu Lisesi', played: 6, won: 2, lost: 4, draw: 0, points: 6 },
-    ];
+    console.error(error);
   }
 
   return (

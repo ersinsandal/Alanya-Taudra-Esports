@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Users, Lock } from 'lucide-react';
 import { prisma } from '@/lib/db';
-import { mockCrews } from '@/lib/data/mock-crews';
+
 import { getCurrentUser } from '@/lib/auth/session';
 
 export const metadata: Metadata = {
@@ -57,23 +57,19 @@ export default async function CrewsPage() {
       }
     });
 
-    if (dbCrews.length > 0) {
-      crews = dbCrews.map(c => {
-        const gameName = c.game?.name || 'Espor';
-        return {
-          id: c.id,
-          name: `${gameName} Ekibi`,
-          slug: c.slug,
-          game: gameName,
-          memberCount: c._count.members,
-          cover: getCover(gameName),
-        };
-      });
-    } else {
-      crews = mockCrews;
-    }
+    crews = dbCrews.map(c => {
+      const gameName = c.game?.name || 'Espor';
+      return {
+        id: c.id,
+        name: `${gameName} Ekibi`,
+        slug: c.slug,
+        game: gameName,
+        memberCount: c._count.members,
+        cover: getCover(gameName),
+      };
+    });
   } catch (error) {
-    crews = mockCrews;
+    console.error(error);
   }
 
   return (

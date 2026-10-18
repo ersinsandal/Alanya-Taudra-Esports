@@ -12,7 +12,7 @@ import {
   AlertTriangle, Activity, Database, LogOut, Menu, X, ToggleLeft
 } from 'lucide-react';
 
-type RoleType = 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'GAME_LEADER' | 'USER';
+type RoleType = 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'GAME_LEADER' | 'CAPTAIN' | 'USER';
 
 interface AdminSidebarProps {
   userRole: RoleType;
@@ -26,8 +26,16 @@ const MENU_GROUPS = [
     items: [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/admin/users', label: 'Üyeler', icon: Users },
-      { href: '/admin/players', label: 'Oyuncular', icon: User },
       { href: '/admin/games', label: 'Oyunlar', icon: Gamepad2 },
+    ]
+  },
+  {
+    label: 'TAKIM BİLGİLERİ',
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'GAME_LEADER', 'CAPTAIN'],
+    items: [
+      { href: '/admin/teams', label: 'Takımlar', icon: Users },
+      { href: '/admin/ate-players', label: 'ATE Oyuncuları', icon: User },
+      { href: '/admin/team-applications', label: 'Takım Oyuncu Başvuruları', icon: Target },
     ]
   },
   {
@@ -35,23 +43,21 @@ const MENU_GROUPS = [
     allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'GAME_LEADER'],
     items: [
       { href: '/admin/crews', label: 'Ekipler', icon: Shield },
-      { href: '/admin/crew-applications', label: 'Lider Başvuruları', icon: Target },
-      { href: '/admin/teams', label: 'Takımlar', icon: Users },
+      { href: '/admin/crew-applications', label: 'Ekip Lideri Başvuruları', icon: Target },
     ]
   },
   {
     label: 'ORGANİZASYON',
-    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'GAME_LEADER'],
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'GAME_LEADER', 'CAPTAIN'],
     items: [
       { href: '/admin/tournaments', label: 'Turnuvalar', icon: Trophy },
       { href: '/admin/matches', label: 'Maçlar', icon: Swords },
       { href: '/admin/events', label: 'Etkinlikler', icon: Calendar },
-      { href: '/admin/scrims', label: 'Scrimler', icon: Activity },
     ]
   },
   {
     label: 'İÇERİK',
-    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'],
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'CAPTAIN'],
     items: [
       { href: '/admin/news', label: 'Haberler', icon: FileText },
       { href: '/admin/media', label: 'Medya', icon: ImageIcon },
@@ -121,15 +127,14 @@ export function AdminSidebar({ userRole, userName }: AdminSidebarProps) {
         flex flex-col h-screen
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 shrink-0">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 overflow-hidden">
+        <div className="p-4 shrink-0 flex justify-center mb-2">
+          <Link href="/" className="flex flex-col items-center gap-2 group cursor-pointer" title="Siteye Dön">
+            <div className="relative w-20 h-20 group-hover:scale-105 transition-transform duration-300">
               <Image src="/ate-logo.png" alt="ATE Logo" fill className="object-contain" />
             </div>
-            <div className="flex flex-col">
-              <span className="font-heading font-bold text-xl tracking-tight text-white group-hover:text-primary-red transition-colors">ATE</span>
-              <span className="text-[10px] font-bold text-primary-red bg-primary-red/10 px-1.5 py-0.5 rounded uppercase tracking-widest self-start">ADMIN</span>
-            </div>
+            <span className="text-[10px] font-bold text-primary-red bg-primary-red/10 px-2 py-0.5 rounded uppercase tracking-widest">
+              ADMIN PANEL
+            </span>
           </Link>
         </div>
 

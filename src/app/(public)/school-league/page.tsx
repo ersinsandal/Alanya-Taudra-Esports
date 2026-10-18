@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { Trophy, Calendar, ChevronRight, Swords, Star } from "lucide-react";
 import { ATEEmptyState } from "@/components/ui/empty-state";
@@ -12,7 +12,7 @@ export const metadata = {
 export default async function SchoolLeaguePage() {
   const matches = await prisma.match.findMany({
     where: { 
-      tournament: { type: 'SCHOOL' }
+      tournament: { isSchoolLeague: true }
     },
     orderBy: { scheduledAt: 'asc' },
     take: 6,
@@ -23,7 +23,7 @@ export default async function SchoolLeaguePage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#F7F7F7]">
+    <div className="min-h-screen bg-transparent text-[#F7F7F7]">
       <div className="h-[40vh] relative flex items-center border-b border-white/5">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -32,15 +32,15 @@ export default async function SchoolLeaguePage() {
             fill 
             className="object-cover opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent to-transparent" />
         </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold mb-4">
+        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-red/10 border border-primary-red/20 text-primary-red text-sm font-bold mb-4">
             <Trophy className="w-4 h-4" />
             <span>ALANYA OKUL LİGİ 2026</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black font-space mb-4">OKULUNU ZİRVEYE TAŞI</h1>
-          <p className="text-xl text-[#99999F] max-w-2xl">Lise ve üniversiteler arası amansız rekabet. Takımını kur, okulunu temsil et ve efsane ol.</p>
+          <p className="text-xl text-[#99999F] max-w-2xl mx-auto">Lise ve üniversiteler arası amansız rekabet. Takımını kur, okulunu temsil et ve efsane ol.</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export default async function SchoolLeaguePage() {
             ) : (
               <div className="space-y-4">
                 {matches.map((match) => (
-                  <div key={match.id} className="bg-[#111111] border border-white/5 rounded-xl p-4">
+                  <div key={match.id} className="bg-panel border border-white/5 rounded-xl p-4">
                     <div className="text-xs text-[#99999F] text-center mb-3">
                       {match.scheduledAt ? new Date(match.scheduledAt).toLocaleDateString('tr-TR') : 'Tarih Belirsiz'}
                     </div>

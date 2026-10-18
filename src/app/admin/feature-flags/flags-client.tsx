@@ -11,8 +11,6 @@ export default function FeatureFlagsPage() {
     tournaments: true,
     liveStreams: false,
     autoBracket: true,
-    scrimPool: true,
-    scrimMatchmaking: true,
     lftBoard: true,
     clips: false,
     forum: false,
@@ -43,14 +41,12 @@ export default function FeatureFlagsPage() {
         { key: "tournaments", label: "Turnuva Kayıtları", desc: "Yeni turnuva kayıtlarının alınmasını sağlar." },
         { key: "liveStreams", label: "Canlı Maç Yayını", desc: "Sistem üzerinden canlı yayınları gösterir." },
         { key: "autoBracket", label: "Otomatik Bracket", desc: "Turnuva ağaçlarının otomatik oluşturulmasını aktif eder." },
-        { key: "scrimPool", label: "Scrim Havuzu", desc: "Takımların antrenman maçı aramasını açar." },
       ]
     },
     {
       title: "TOPLULUK",
       icon: <Settings2 className="w-5 h-5 text-emerald-400" />,
       items: [
-        { key: "scrimMatchmaking", label: "Scrim Eşleştirme", desc: "Otomatik takım eşleştirme algoritmasını çalıştırır." },
         { key: "lftBoard", label: "LFT İlanları", desc: "Oyuncu veya takım arama ilan panosunu açar." },
         { key: "clips", label: "Klip Paylaşımı", desc: "Kullanıcıların maç kliplerini paylaşmasına izin verir." },
         { key: "forum", label: "Topluluk Forumu", desc: "Dahili tartışma forumu modülünü açar." },

@@ -1,14 +1,18 @@
 import { prisma } from '../db'
 
 export async function generateAteId(): Promise<string> {
-  // Try to find the latest ATE ID to increment, or use a count-based approach
-  // Since we might have concurrent generation, we'll try random 6-digit with fallback and retry logic
   let isUnique = false
   let ateId = ''
   
+  const now = new Date()
+  const month = (now.getMonth() + 1).toString().padStart(2, '0') // 01 to 12
+  const year = now.getFullYear().toString().slice(-2) // last 2 digits of year, e.g., 26
+  const prefix = `${month}${year}` // e.g., 1026
+  
   while (!isUnique) {
-    const randomNum = Math.floor(100000 + Math.random() * 900000).toString()
-    ateId = `ATE-074-${randomNum}`
+    // Generate 5 random digits (10000 to 99999)
+    const randomNum = Math.floor(10000 + Math.random() * 90000).toString()
+    ateId = `ATE-${prefix}-${randomNum}`
     
     const existing = await prisma.user.findUnique({
       where: { ateId }

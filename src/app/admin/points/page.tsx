@@ -20,7 +20,7 @@ export default async function PointsAdminPage() {
         </button>
       </div>
 
-      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/10 text-xs text-[#99999F] bg-black/20">
@@ -38,7 +38,7 @@ export default async function PointsAdminPage() {
                   <div className="font-bold text-white">{t.user?.username || 'Bilinmiyor'}</div>
                 </td>
                 <td className="p-4">
-                  <div className="text-sm text-white capitalize">{t.type}</div>
+                  <div className="text-sm text-white capitalize">{t.source}</div>
                   <div className="text-xs text-[#99999F] mt-1">{t.description}</div>
                 </td>
                 <td className="p-4">

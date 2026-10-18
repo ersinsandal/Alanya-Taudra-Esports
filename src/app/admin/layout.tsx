@@ -10,11 +10,11 @@ export default async function AdminLayout({
   const user = await getCurrentUser();
   
   if (!user) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   // Check if user has any of the admin-level roles
-  let highestRole: 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'GAME_LEADER' | 'USER' = 'USER';
+  let highestRole: 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'GAME_LEADER' | 'CAPTAIN' | 'USER' = 'USER';
   
   const hasRole = (roleName: string) => user.roles?.some((ur: { role: { name: string } }) => ur.role.name === roleName);
 
@@ -26,6 +26,8 @@ export default async function AdminLayout({
     highestRole = 'MODERATOR';
   } else if (hasRole('GAME_LEADER')) {
     highestRole = 'GAME_LEADER';
+  } else if (hasRole('CAPTAIN')) {
+    highestRole = 'CAPTAIN';
   }
 
   if (highestRole === 'USER') {

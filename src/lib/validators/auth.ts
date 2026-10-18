@@ -32,7 +32,7 @@ export const registerSchema = z.object({
   lastName: z.string().min(2, 'Soyad en az 2 karakter olmalıdır.'),
   username: usernameSchema,
   email: z.string().email('Geçerli bir e-posta adresi girin.'),
-  phone: z.string().min(10, 'Geçerli bir telefon numarası girin.'),
+  phone: z.string().optional().or(z.literal('')),
   birthDate: z.string().refine(val => !isNaN(Date.parse(val)), {
     message: 'Geçerli bir tarih girin.'
   }),

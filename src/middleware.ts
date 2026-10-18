@@ -38,6 +38,11 @@ export function middleware(request: NextRequest) {
     return response
   }
 
+  // Redirect authenticated users away from auth routes
+  if (sessionToken && isAuthRoute) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
   // Needs auth check
   if (!sessionToken && !isPublicRoute && !isAuthRoute) {
     // If it's a protected route like /dashboard, /settings, /admin and no session

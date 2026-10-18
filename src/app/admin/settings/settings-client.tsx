@@ -3,13 +3,20 @@
 import React, { useState } from "react";
 import { Save, Settings, Mail, Globe, Wrench, ShieldAlert } from "lucide-react";
 
+import { saveSystemSettings } from "./actions";
+
 export default function SettingsClient() {
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1000); // mock save
+    
+    // Simulate real save
+    const formData = new FormData();
+    await saveSystemSettings(formData);
+    
+    setIsSaving(false);
   };
 
   return (

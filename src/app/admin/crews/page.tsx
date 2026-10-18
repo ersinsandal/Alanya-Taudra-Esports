@@ -19,6 +19,7 @@ export default async function CrewsPage() {
   const crews = rawCrews.map(c => ({
     id: c.id,
     name: c.name,
+    slug: c.slug,
     gameName: c.game.name,
     logoUrl: c.logoUrl,
     gameIcon: c.game.icon,
@@ -31,9 +32,9 @@ export default async function CrewsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-heading font-black tracking-tight text-white uppercase">Oyun Ekipleri Yönetimi</h1>
         {!isGameLeaderOnly && (
-          <button className="bg-primary-red hover:bg-[#A00000] text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          <Link href="/admin/games" className="bg-primary-red hover:bg-[#A00000] text-white px-4 py-2 rounded-lg font-medium transition-colors">
             Yeni Ekip Oluştur
-          </button>
+          </Link>
         )}
       </div>
 
@@ -78,12 +79,12 @@ export default async function CrewsPage() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button className="flex-1 bg-[#1A1A24] hover:bg-white/10 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+              <Link href={`/admin/crews/${crew.id}`} className="flex-1 bg-[#1A1A24] hover:bg-white/10 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm text-center">
                 Detaylar
-              </button>
-              <button className="flex-1 bg-[#1A1A24] hover:bg-white/10 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+              </Link>
+              <Link href="/admin/games" className="flex-1 bg-[#1A1A24] hover:bg-white/10 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm text-center">
                 Ayarlar
-              </button>
+              </Link>
             </div>
             </div>
           </div>

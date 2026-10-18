@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { GraduationCap, Trophy, Users, Calendar, MapPin, ChevronRight, Swords } from "lucide-react";
 import { ATEEmptyState } from "@/components/ui/empty-state";
@@ -11,7 +11,10 @@ export const metadata = {
 
 export default async function CampusPage() {
   const teams = await prisma.team.findMany({
-    where: { status: 'ACTIVE' },
+    where: { 
+      isSchoolTeam: true,
+      deletedAt: null 
+    },
     include: {
       game: true,
       members: true
@@ -31,7 +34,7 @@ export default async function CampusPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#F7F7F7]">
+    <div className="min-h-screen bg-transparent text-[#F7F7F7]">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -41,27 +44,27 @@ export default async function CampusPage() {
             fill 
             className="object-cover opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-black/50/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-transparent" />
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold mb-6">
+        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+          <div className="max-w-4xl flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-red/10 border border-primary-red/20 text-primary-red text-sm font-bold mb-6">
               <GraduationCap className="w-4 h-4" />
               <span>OKUL LİGİ & KAMPÜS</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black font-space mb-6 tracking-tighter">
-              ALANYA'NIN <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">ESPOR GELECEĞİ</span>
+              ALANYA'NIN <span className="text-white">ESPOR GELECEĞİ</span>
             </h1>
             <p className="text-lg text-[#99999F] mb-8 max-w-2xl">
               Lise ve üniversiteler arası rekabet başlıyor. Okulunu temsil et, turnuvalara katıl ve okulunun adını zirveye yazdır.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/school-league" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-md font-bold transition-all">
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/school-league" className="bg-primary-red hover:bg-deep-red text-white px-8 py-3 rounded-md font-bold transition-all">
                 Okul Ligini İncele
               </Link>
-              <Link href="/representative" className="bg-[#111111] hover:bg-white/10 border border-white/10 text-white px-8 py-3 rounded-md font-bold transition-all">
+              <Link href="/representative" className="bg-panel hover:bg-white/10 border border-white/10 text-white px-8 py-3 rounded-md font-bold transition-all">
                 Okul Temsilcisi Ol
               </Link>
             </div>
@@ -94,17 +97,17 @@ export default async function CampusPage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {teams.map((team) => (
-                      <div key={team.id} className="bg-[#111111] border border-white/5 rounded-xl p-4 hover:border-white/20 transition-all flex items-center gap-4 group">
+                      <div key={team.id} className="bg-panel border border-white/5 rounded-xl p-4 hover:border-white/20 transition-all flex items-center gap-4 group">
                         <div className="w-16 h-16 rounded-lg bg-black border border-white/10 flex items-center justify-center shrink-0">
-                          {team.logo ? (
-                            <Image src={team.logo} alt={team.name} width={40} height={40} className="object-contain" />
+                          {team.logoUrl ? (
+                            <Image src={team.logoUrl} alt={team.name} width={40} height={40} className="object-contain" />
                           ) : (
                             <Users className="w-8 h-8 text-[#99999F]" />
                           )}
                         </div>
                         <div>
                           <div className="text-xs text-[#99999F] mb-1 font-medium">{team.game.name}</div>
-                          <h3 className="font-bold text-lg group-hover:text-blue-400 transition-colors">{team.name}</h3>
+                          <h3 className="font-bold text-lg group-hover:text-primary-red transition-colors">{team.name}</h3>
                           <div className="text-xs text-[#99999F] mt-1">{team.members.length} Oyuncu</div>
                         </div>
                       </div>
@@ -127,9 +130,9 @@ export default async function CampusPage() {
                 ) : (
                   <div className="space-y-4">
                     {matches.map((match) => (
-                      <div key={match.id} className="bg-[#111111] border border-white/5 rounded-xl p-6 hover:border-white/20 transition-all">
+                      <div key={match.id} className="bg-panel border border-white/5 rounded-xl p-6 hover:border-white/20 transition-all">
                         <div className="flex items-center justify-between mb-4">
-                          <div className="text-sm font-bold text-purple-400">{match.tournament?.name || "Özel Maç"}</div>
+                          <div className="text-sm font-bold text-primary-red">{match.tournament?.name || "Özel Maç"}</div>
                           <div className="text-sm text-[#99999F]">
                             {new Date(match.scheduledAt!).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                           </div>
@@ -156,20 +159,20 @@ export default async function CampusPage() {
 
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/20 rounded-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-400">
+              <div className="bg-gradient-to-br from-primary-red/20 to-accent-red/20 border border-primary-red/20 rounded-2xl p-6 text-center">
+                <div className="w-16 h-16 bg-primary-red/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary-red">
                   <MapPin className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold font-space mb-2">Okul Temsilcisi Ol</h3>
                 <p className="text-[#99999F] text-sm mb-6">
                   Okulundaki espor faaliyetlerini sen yönet. ATE'nin resmi okul temsilcisi olarak takımını kur.
                 </p>
-                <Link href="/representative" className="block w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
+                <Link href="/representative" className="block w-full py-3 bg-primary-red hover:bg-deep-red text-white font-bold rounded-lg transition-colors">
                   Başvuru Yap
                 </Link>
               </div>
 
-              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6">
+              <div className="bg-panel border border-white/5 rounded-2xl p-6">
                 <h3 className="text-lg font-bold mb-4 font-space">Nasıl Çalışır?</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">

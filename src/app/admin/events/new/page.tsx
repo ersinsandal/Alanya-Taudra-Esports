@@ -53,11 +53,11 @@ export default function NewEventPage() {
               onChange={(e) => setFormData({...formData, type: e.target.value})}
               className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary-red appearance-none"
             >
-              <option value="" disabled>Tür seçin</option>
-              <option value="watch_party">Watch Party</option>
-              <option value="lan">LAN Turnuvası</option>
-              <option value="meetup">Topluluk Buluşması</option>
-              <option value="seminar">Seminer</option>
+              <option className="bg-[#050505] text-white" value="" disabled>Tür seçin</option>
+              <option className="bg-[#050505] text-white" value="watch_party">Watch Party</option>
+              <option className="bg-[#050505] text-white" value="lan">LAN Turnuvası</option>
+              <option className="bg-[#050505] text-white" value="meetup">Topluluk Buluşması</option>
+              <option className="bg-[#050505] text-white" value="seminar">Seminer</option>
             </select>
           </div>
 

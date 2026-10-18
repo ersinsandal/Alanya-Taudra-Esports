@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { Trophy, Plus, Edit2, Trash2 } from "lucide-react";
 
 export default async function AchievementsPage() {
@@ -16,7 +16,7 @@ export default async function AchievementsPage() {
         </button>
       </div>
 
-      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/10 text-xs text-[#99999F] bg-black/20">
@@ -39,8 +39,8 @@ export default async function AchievementsPage() {
                   <div className="text-sm text-[#99999F] mt-1">{badge.description}</div>
                 </td>
                 <td className="p-4">
-                  <div className="text-sm text-white capitalize">{badge.type}</div>
-                  <div className="text-xs text-[#D00000] font-bold mt-1">+{badge.pointValue || 0} Puan</div>
+                  <div className="text-sm text-white capitalize">{badge.category || 'Genel'}</div>
+                  <div className="text-xs text-[#99999F] font-medium mt-1">Koşul: {badge.criteria || 'Yok'}</div>
                 </td>
                 <td className="p-4 text-right">
                   <div className="flex items-center justify-end gap-2">

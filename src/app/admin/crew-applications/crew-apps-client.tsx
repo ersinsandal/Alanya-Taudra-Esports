@@ -28,7 +28,7 @@ export default function CrewAppsClient({ initialApps }: { initialApps: any[] }) 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-space font-bold tracking-tight text-white">Oyun Lideri Başvuruları</h1>
+        <h1 className="text-3xl font-space font-bold tracking-tight text-white uppercase">Ekip Lideri Başvuruları</h1>
       </div>
 
       <div className="bg-panel border border-white/10 rounded-xl">

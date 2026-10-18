@@ -9,8 +9,7 @@ export default async function TournamentsAdminPage() {
       game: true,
       _count: {
         select: {
-          teams: true,
-          players: true
+          teams: true
         }
       }
     }
@@ -26,7 +25,7 @@ export default async function TournamentsAdminPage() {
         </Link>
       </div>
 
-      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/10 text-xs text-[#99999F] bg-black/20">

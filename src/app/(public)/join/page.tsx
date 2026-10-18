@@ -1,124 +1,102 @@
-import { Metadata } from 'next';
 import Link from 'next/link';
-import { Gamepad2, GraduationCap, Users, Video, HeartHandshake, Building2, Flag, Handshake } from 'lucide-react';
+import { Gamepad2, Shield, Users, School, ArrowRight } from 'lucide-react';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Bize Katıl | ATE Digital Arena',
-  description: 'Alanya Taudra E-Sports ekosistemine katılmak için sana en uygun rolü seç.',
+  description: 'Alanya Taudra E-Sports ekosistemine katılmak için sana en uygun yolu seç.',
 };
 
-const joinOptions = [
+const roles = [
   {
-    title: 'OYUNCU',
-    description: 'Rekabetçi sahnede kendini kanıtla ve resmi ATE takımlarında yer al.',
+    title: 'OYUNCU (TAKIMLARA KATIL)',
+    description: 'Rekabetçi sahnede kendini kanıtla. Aktif takım başvurularını incele ve kadrolara dahil ol.',
     icon: Gamepad2,
-    href: '/register',
-    color: 'from-blue-500/20 to-transparent border-blue-500/30 group-hover:border-blue-500',
+    href: '/teams',
+    color: 'from-blue-500/20 to-blue-600/20',
+    hoverColor: 'hover:border-blue-500/50',
+    iconColor: 'text-blue-400',
   },
   {
-    title: 'ACADEMY',
-    description: 'Profesyonel koçlar eşliğinde yeteneklerini geliştir, ana takıma yükselme şansı yakala.',
-    icon: GraduationCap,
-    href: '/academy/apply',
-    color: 'from-emerald-500/20 to-transparent border-emerald-500/30 group-hover:border-emerald-500',
-  },
-  {
-    title: 'KOÇ',
-    description: 'Taktiksel zekanı göster, takımları yönet ve şampiyonluğa taşı.',
+    title: 'OYUN EKİPLERİNE KATIL',
+    description: 'Valorant, LoL, CS2 gibi topluluk ekiplerinde yer al. Ekip liderleriyle tanış ve etkinliklere katıl.',
     icon: Users,
-    href: '/join/staff?role=coach',
-    color: 'from-purple-500/20 to-transparent border-purple-500/30 group-hover:border-purple-500',
+    href: '/crews',
+    color: 'from-emerald-500/20 to-emerald-600/20',
+    hoverColor: 'hover:border-emerald-500/50',
+    iconColor: 'text-emerald-400',
   },
   {
-    title: 'ANALİST',
-    description: 'Verileri incele, rakipleri çöz ve takıma stratejik avantaj sağla.',
-    icon: Users,
-    href: '/join/staff?role=analyst',
-    color: 'from-cyan-500/20 to-transparent border-cyan-500/30 group-hover:border-cyan-500',
-  },
-  {
-    title: 'İÇERİK ÜRETİCİSİ',
-    description: 'Yayınlar yap, videolar üret, ATE markasının yüzü ol.',
-    icon: Video,
-    href: '/join/staff?role=content_creator',
-    color: 'from-pink-500/20 to-transparent border-pink-500/30 group-hover:border-pink-500',
-  },
-  {
-    title: 'OKUL TEMSİLCİSİ',
-    description: 'Kendi okulunda ATE kültürünü yay, turnuvalar organize et.',
-    icon: Building2,
+    title: 'OKUL TEMSİLCİSİ OL',
+    description: 'Kendi okulunda ATE kültürünü yay, okul takımını kur ve liglere katıl.',
+    icon: School,
     href: '/representative',
-    color: 'from-yellow-500/20 to-transparent border-yellow-500/30 group-hover:border-yellow-500',
+    color: 'from-purple-500/20 to-purple-600/20',
+    hoverColor: 'hover:border-purple-500/50',
+    iconColor: 'text-purple-400',
   },
   {
-    title: 'GÖNÜLLÜ',
-    description: 'Etkinliklerde görev al, organizasyon tecrübesi edin.',
-    icon: HeartHandshake,
-    href: '/join/staff?role=volunteer',
-    color: 'from-orange-500/20 to-transparent border-orange-500/30 group-hover:border-orange-500',
-  },
-  {
-    title: 'PARTNER',
-    description: 'Vizyonumuzu paylaşan markalarla güçlü işbirlikleri kuralım.',
-    icon: Handshake,
-    href: '/partners',
-    color: 'from-white/10 to-transparent border-white/20 group-hover:border-white/50',
-  },
-  {
-    title: 'TARAFTAR',
-    description: 'Dijital arenamıza üye ol, takımları destekle, çekilişlere katıl.',
-    icon: Flag,
-    href: '/register',
-    color: 'from-[#D00000]/20 to-transparent border-[#D00000]/30 group-hover:border-[#D00000]',
-  },
+    title: 'YÖNETİM EKİBİ',
+    description: 'Moderatör, Oyun Lideri veya Admin olarak yetki al, organizasyonun bir parçası ol.',
+    icon: Shield,
+    href: '/join/staff',
+    color: 'from-primary-red/20 to-accent-red/20',
+    hoverColor: 'hover:border-primary-red/50',
+    iconColor: 'text-primary-red',
+  }
 ];
 
 export default function JoinPage() {
   return (
-    <main className="min-h-screen bg-[#050505] pt-24 pb-20">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-16">
-          <h1 className="font-space text-4xl md:text-5xl font-bold text-[#F7F7F7] mb-4">
-            ATE'YE KATIL
-          </h1>
-          <p className="text-lg text-[#99999F]">
-            Sana en uygun rolü seç
-          </p>
-          <div className="w-16 h-1 bg-[#D00000] mx-auto mt-6" />
-        </div>
+    <div className="container mx-auto max-w-6xl px-4 py-16">
+      <div className="text-center mb-16">
+        <h1 className="text-5xl md:text-6xl font-heading font-black text-white uppercase tracking-tight mb-4">
+          ATE'YE KATIL
+        </h1>
+        <p className="text-xl text-secondary-text max-w-2xl mx-auto">
+          Dijital arenamıza adım at ve sana en uygun rolü seç.
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {joinOptions.map((option) => {
-            const Icon = option.icon;
-            return (
-              <Link
-                key={option.title}
-                href={option.href}
-                className={`group relative flex flex-col p-8 bg-gradient-to-br ${option.color} bg-[#111114] border rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50`}
-              >
-                <div className="mb-6 flex justify-between items-start">
-                  <div className="p-3 bg-[rgba(255,255,255,0.05)] rounded-lg">
-                    <Icon className="w-8 h-8 text-[#F7F7F7]" />
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {roles.map((role) => {
+          const Icon = role.icon;
+          return (
+            <Link 
+              key={role.title} 
+              href={role.href}
+              className={`group relative p-8 rounded-2xl bg-panel border border-white/5 transition-all duration-300 overflow-hidden ${role.hoverColor}`}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              
+              <div className="relative z-10">
+                <div className="w-14 h-14 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className={`w-7 h-7 ${role.iconColor}`} />
                 </div>
                 
-                <h3 className="font-space font-bold text-xl text-[#F7F7F7] mb-3">
-                  {option.title}
+                <h3 className="text-xl font-bold font-heading text-white mb-3">
+                  {role.title}
                 </h3>
                 
-                <p className="text-[#99999F] text-sm leading-relaxed mb-6 flex-1">
-                  {option.description}
+                <p className="text-secondary-text mb-6 min-h-[48px]">
+                  {role.description}
                 </p>
-
-                <div className="flex items-center text-sm font-medium text-white group-hover:gap-2 transition-all">
-                  <span>Hemen Başvur</span>
-                  <span className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">&rarr;</span>
+                
+                <div className="flex items-center text-sm font-bold text-white group-hover:text-primary-red transition-colors">
+                  İlgili Sayfaya Git <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
-    </main>
+      
+      <div className="mt-16 text-center">
+        <p className="text-secondary-text mb-4">Sadece platforma üye olup takipte kalmak mı istiyorsun?</p>
+        <Link href="/register" className="inline-block px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white font-medium transition-colors">
+          Hemen Hesap Oluştur
+        </Link>
+      </div>
+    </div>
   );
 }

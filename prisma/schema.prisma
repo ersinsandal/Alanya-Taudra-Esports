@@ -90,13 +90,7 @@ enum MatchStatus {
   POSTPONED
 }
 
-enum ScrimStatus {
-  OPEN
-  PENDING
-  ACCEPTED
-  COMPLETED
-  CANCELLED
-}
+
 
 enum EventType {
   WATCH_PARTY
@@ -201,7 +195,7 @@ enum NotificationType {
 
 model User {
   id            String     @id @default(uuid())
-  ateId         String     @unique // ATE-074-XXXXXX
+  ateId         String     @unique // ATE-MMYY-XXXXX (e.g. ATE-1026-12345)
   email         String     @unique
   phone         String?
   passwordHash  String
@@ -267,11 +261,11 @@ model UserProfile {
   purpose         String[] // User's goals: competitive, academy, fan, etc.
 
   // Privacy settings
-  showAge          Boolean @default(false)
+  privacyAge String @default("PUBLIC")
   showCity         Boolean @default(true)
   showSchool       Boolean @default(false)
   showOnlineStatus Boolean @default(true)
-  showGameProfiles Boolean @default(true)
+  privacyGames String @default("PUBLIC")
   allowTeamInvites Boolean @default(true)
 
   profileCompleted Boolean @default(false)
@@ -523,7 +517,6 @@ model Game {
   gameProfiles     GameProfile[]
   teams            Team[]
   tournaments      Tournament[]
-  scrims           Scrim[]
   crews            Crew[]
   crewApplications CrewApplication[]
 
@@ -572,6 +565,7 @@ model Team {
   isSchoolTeam     Boolean   @default(false)
   isUniversityTeam Boolean   @default(false)
   isOpen           Boolean   @default(true)
+  approverRoles    String[]  @default(["ADMIN", "LEADER", "CAPTAIN"])
   verified         Boolean   @default(false)
   schoolId         String?
   universityId     String?
@@ -592,8 +586,6 @@ model Team {
   matchesAsTeamA  Match[]           @relation("MatchTeamA")
   matchesAsTeamB  Match[]           @relation("MatchTeamB")
   matchWins       MatchResult[]     @relation("MatchWinner")
-  scrimsCreated   Scrim[]           @relation("ScrimCreator")
-  scrimRequests   ScrimRequest[]
 
   @@index([slug])
   @@index([gameId])
@@ -842,41 +834,11 @@ model MatchResult {
   winner Team  @relation("MatchWinner", fields: [winnerTeamId], references: [id])
 }
 
-// ============================================
-// SCRIMS
-// ============================================
 
-model Scrim {
-  id            String      @id @default(uuid())
-  creatorTeamId String
-  gameId        String
-  date          DateTime
-  bestOf        Int         @default(1)
-  server        String?
-  averageLevel  String?
-  notes         String?
-  status        ScrimStatus @default(OPEN)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
 
-  creatorTeam Team           @relation("ScrimCreator", fields: [creatorTeamId], references: [id])
-  game        Game           @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  requests    ScrimRequest[]
-}
 
-model ScrimRequest {
-  id               String   @id @default(uuid())
-  scrimId          String
-  requestingTeamId String
-  message          String?
-  status           String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
-  createdAt        DateTime @default(now())
 
-  scrim          Scrim @relation(fields: [scrimId], references: [id], onDelete: Cascade)
-  requestingTeam Team  @relation(fields: [requestingTeamId], references: [id])
 
-  @@unique([scrimId, requestingTeamId])
-}
 
 // ============================================
 // EVENTS

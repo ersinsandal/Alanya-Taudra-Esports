@@ -1,325 +1,156 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { 
   Trophy, 
   Gamepad2, 
   Users, 
-  Medal, 
   Bell, 
   CalendarDays, 
-  FileText, 
-  Clock,
+  Activity,
   ArrowRight,
-  X
+  Target,
+  Flame,
+  Award
 } from "lucide-react";
 
-function AddGameModal({ 
-  isOpen, 
-  onClose,
-  onSave
-}: { 
-  isOpen: boolean; 
-  onClose: () => void;
-  onSave: (game: { name: string; tag: string }) => void;
-}) {
-  const [selectedGame, setSelectedGame] = useState("VALORANT");
-  const [tag, setTag] = useState("");
-  
-  if (!isOpen) return null;
-
-  const getLabel = () => {
-    switch (selectedGame) {
-      case "VALORANT": return "Riot ID (Örn: Player#TAG)";
-      case "CS2": return "Steam ID / Faceit";
-      case "LEAGUE OF LEGENDS": return "Riot ID";
-      case "FC 25": return "EA ID";
-      default: return "ID";
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tag.trim()) return;
-    onSave({ name: selectedGame, tag: tag.trim() });
-    setTag("");
-    onClose();
-  };
+export default function DashboardClient({ user, stats }: { user: any, stats: any }) {
+  // Use DB stats if available, otherwise fallback
+  const points = stats?.points || 0;
+  const matches = stats?.matchesPlayed || 0;
+  const winRate = stats?.matchesPlayed ? Math.round((stats.wins / stats.matchesPlayed) * 100) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-panel border border-border/50 rounded-xl p-6 w-full max-w-md m-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold font-heading text-primary-text">Oyun Profili Ekle</h2>
-          <button onClick={onClose} className="text-secondary-text hover:text-primary-text transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
+    <div className="max-w-7xl mx-auto w-full p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold font-heading text-white">
+            Hoş Geldin, <span className="text-[#FF1F2D]">{user.username}</span>
+          </h1>
+          <p className="text-secondary-text mt-2 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-emerald-400" /> Platform istatistiklerin ve güncel özetin
+          </p>
         </div>
+        <Link href={`/u/${user.username}`} className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all flex items-center gap-2 hover:border-primary-red/50">
+          Profili Görüntüle <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
+      {/* QUICK STATS - CREATIVE OVERVIEW */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-panel border border-border/50 rounded-2xl p-6 relative overflow-hidden group hover:border-primary-red/30 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Trophy className="w-16 h-16 text-primary-red" />
+          </div>
+          <p className="text-secondary-text text-sm font-medium mb-1 relative z-10">Kazanılan Puan</p>
+          <p className="text-3xl font-bold text-white font-heading relative z-10">{points.toLocaleString()}</p>
+        </div>
+
+        <div className="bg-panel border border-border/50 rounded-2xl p-6 relative overflow-hidden group hover:border-blue-500/30 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Gamepad2 className="w-16 h-16 text-blue-500" />
+          </div>
+          <p className="text-secondary-text text-sm font-medium mb-1 relative z-10">Oynanan Maç</p>
+          <p className="text-3xl font-bold text-white font-heading relative z-10">{matches}</p>
+        </div>
+
+        <div className="bg-panel border border-border/50 rounded-2xl p-6 relative overflow-hidden group hover:border-orange-500/30 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Flame className="w-16 h-16 text-orange-500" />
+          </div>
+          <p className="text-secondary-text text-sm font-medium mb-1 relative z-10">Kazanma Oranı</p>
+          <p className="text-3xl font-bold text-white font-heading relative z-10">%{winRate}</p>
+        </div>
+
+        <div className="bg-panel border border-border/50 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/30 transition-colors">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Users className="w-16 h-16 text-purple-500" />
+          </div>
+          <p className="text-secondary-text text-sm font-medium mb-1 relative z-10">Takım / Ekip</p>
+          <p className="text-3xl font-bold text-white font-heading relative z-10">
+            {(user.teamMemberships?.length || 0) + (user.crewMemberships?.length || 0)}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-secondary-text">Oyun Seç</label>
-            <select 
-              value={selectedGame}
-              onChange={(e) => setSelectedGame(e.target.value)}
-              className="w-full bg-secondary border border-border/50 rounded-lg px-4 py-2 text-primary-text focus:outline-none focus:border-primary-red"
-            >
-              <option value="VALORANT">VALORANT</option>
-              <option value="CS2">CS2</option>
-              <option value="LEAGUE OF LEGENDS">LEAGUE OF LEGENDS</option>
-              <option value="FC 25">FC 25</option>
-            </select>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-secondary-text">{getLabel()}</label>
-            <input 
-              type="text" 
-              required
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              placeholder="Örn: Player#TR1" 
-              className="w-full bg-secondary border border-border/50 rounded-lg px-4 py-2 text-primary-text focus:outline-none focus:border-primary-red" 
-            />
-          </div>
-          
-          <div className="pt-4 flex items-center justify-end gap-3">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="px-4 py-2 bg-secondary border border-border/50 text-primary-text font-medium rounded-lg hover:bg-secondary/80 transition-colors cursor-pointer"
-            >
-              İptal
-            </button>
-            <button 
-              type="submit"
-              className="px-4 py-2 bg-primary-red text-white font-medium rounded-lg hover:bg-deep-red transition-colors cursor-pointer"
-            >
-              Kaydet
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-export default function DashboardClient({ user, stats, teams, applications }: any) {
-  const [isGameModalOpen, setIsGameModalOpen] = useState(false);
-  const [userGames, setUserGames] = useState<Array<{ name: string; tag: string }>>([
-    { name: "VALORANT", tag: "Player#TR1" }
-  ]);
-  const username = user?.username || "User";
-
-  const handleAddGame = (game: { name: string; tag: string }) => {
-    setUserGames(prev => [...prev.filter(g => g.name !== game.name), game]);
-  };
-
-  return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full p-4 md:p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl md:text-4xl font-bold font-heading text-primary-text">
-          Welcome back, {username}. 👋
-        </h1>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "ATE Score", value: "1,250", icon: Trophy, color: "text-primary-red" },
-          { label: "Maçlar", value: "34", icon: Gamepad2, color: "text-accent-red" },
-          { label: "Takımlar", value: "2", icon: Users, color: "text-primary-text" },
-          { label: "Başarılar", value: "8", icon: Medal, color: "text-warning" },
-        ].map((stat, i) => (
-          <div key={i} className="bg-panel border border-border/50 rounded-xl p-6 flex flex-col gap-4 relative overflow-hidden">
-            <div className="flex items-center gap-3">
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              <span className="text-sm font-medium text-secondary-text">{stat.label}</span>
-            </div>
-            <span className="text-3xl font-bold font-heading text-primary-text">{stat.value}</span>
-            <div className={`absolute -bottom-4 -right-4 w-24 h-24 bg-current opacity-[0.03] rounded-full ${stat.color}`} />
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          {/* Takım Durumu */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <h2 className="text-xl font-bold font-heading text-primary-text mb-6 flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary-red" />
-              Takım Durumu
-            </h2>
-            {teams && teams.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {teams.map((t: any) => (
-                  <div key={t.id} className="p-4 rounded-xl bg-secondary/30 border border-border/30 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red">
-                        {t.team?.name?.substring(0,2).toUpperCase()}
-                      </div>
-                      <span className="font-bold text-primary-text">{t.team?.name}</span>
-                    </div>
-                    <span className="text-xs text-secondary-text mt-2 uppercase">{t.role}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4">
-                  <Users className="w-8 h-8 text-secondary-text" />
-                </div>
-                <h3 className="text-lg font-medium text-primary-text mb-2">Henüz takımın yok.</h3>
-                <p className="text-sm text-secondary-text mb-6 max-w-sm">
-                  Bir takıma katılarak turnuvalarda yer alabilir, scrim maçlarına çıkabilirsin.
-                </p>
-                <Link href="/teams" className="px-6 py-2 bg-primary-red text-primary-text font-medium rounded-lg hover:bg-deep-red transition-colors">
-                  Takım Bul
-                </Link>
-              </div>
-            )}
-          </section>
-
-          {/* Yaklaşan Etkinlikler */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <h2 className="text-xl font-bold font-heading text-primary-text mb-6 flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-primary-red" />
-              Yaklaşan Etkinlikler
-            </h2>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <p className="text-secondary-text mb-4">Henüz etkinliğe katılmadın.</p>
-              <Link href="/events" className="text-primary-red hover:text-accent-red font-medium text-sm flex items-center gap-1">
-                Etkinlikleri Keşfet <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </section>
-
-          {/* Oyun Profilleri */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold font-heading text-primary-text flex items-center gap-2">
-                <Gamepad2 className="w-5 h-5 text-primary-red" />
-                Oyun Profilleri
+        {/* MAIN FEED / RECENT ACTIVITY */}
+        <div className="lg:col-span-2 space-y-6">
+          <section className="bg-panel border border-border/50 rounded-2xl p-6 h-full min-h-[300px] flex flex-col relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-red/50 to-transparent"></div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold font-heading text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary-red" /> İlerleme & Hedefler
               </h2>
-              {gameProfiles && gameProfiles.length > 0 && (
-                <button 
-                  onClick={() => setIsGameModalOpen(true)}
-                  className="text-xs bg-primary-red/10 text-primary-red hover:bg-primary-red hover:text-white px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer"
-                >
-                  + Oyun Ekle
-                </button>
-              )}
             </div>
             
-            {gameProfiles && gameProfiles.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {gameProfiles.map((game: any, idx: number) => (
-                  <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-secondary/40 border border-border/40">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-primary-red/10 flex items-center justify-center font-bold text-xs text-primary-red overflow-hidden p-0.5">
-                        {game.game?.icon ? (
-                          <img src={game.game.icon} alt={game.game.name} className="w-full h-full object-cover rounded-sm" />
-                        ) : (
-                          (game.game?.name || 'GAM').substring(0, 3).toUpperCase()
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-primary-text leading-tight">{game.game?.name}</p>
-                        <p className="text-xs text-secondary-text font-mono">{game.gameUsername}</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-medium">
-                      Bağlı
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <p className="text-secondary-text mb-4">Henüz oyun profili eklemedin.</p>
-                <button 
-                  onClick={() => setIsGameModalOpen(true)}
-                  className="px-6 py-2 bg-secondary border border-border/50 text-primary-text font-medium rounded-lg hover:bg-secondary/80 transition-colors cursor-pointer"
-                >
-                  Oyun Ekle
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
-
-        <div className="flex flex-col gap-8">
-          {/* Aktif Bildirimler */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold font-heading text-primary-text flex items-center gap-2">
-                <Bell className="w-4 h-4 text-primary-red" />
-                Bildirimler
-              </h2>
-              <Link href="/notifications" className="text-xs text-primary-red hover:text-accent-red font-medium">
-                Tümünü Gör
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-secondary/10 rounded-xl border border-white/5">
+              <Award className="w-12 h-12 text-secondary-text mb-4 opacity-50" />
+              <h3 className="text-lg font-bold text-white mb-2">Sezon Henüz Başlamadı</h3>
+              <p className="text-secondary-text text-sm max-w-sm">Aktif turnuvalara katılarak veya takımınızla antrenman (scrim) atarak istatistiklerinizi buradan takip edebilirsiniz.</p>
+              <Link href="/tournaments" className="mt-6 px-6 py-2 bg-primary-red text-white text-sm font-medium rounded-lg hover:bg-deep-red transition-colors inline-block">
+                Turnuvalara Göz At
               </Link>
             </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Bell className="w-4 h-4 text-primary-text" />
+          </section>
+        </div>
+
+        {/* SIDEBAR WIDGETS */}
+        <div className="space-y-6">
+          
+          {/* NOTIFICATIONS WIDGET */}
+          <section className="bg-panel border border-border/50 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold font-heading text-white flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary-red" /> Bildirimler
+              </h2>
+              <Link href="/notifications" className="text-xs text-secondary-text hover:text-white transition-colors">Tümünü Gör</Link>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-secondary/20 rounded-xl border border-white/5">
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                  <span className="text-blue-400 text-xs font-bold">ATE</span>
                 </div>
                 <div>
-                  <p className="text-sm text-primary-text">Hoş geldin! Profilini tamamlayarak daha fazla özellikten faydalanabilirsin.</p>
-                  <span className="text-xs text-secondary-text mt-1 block">Az önce</span>
+                  <p className="text-sm text-white leading-snug">Hoş geldin! Profilini tamamlayarak takımlara katılmaya hemen başlayabilirsin.</p>
+                  <span className="text-[10px] text-secondary-text mt-1 block">Az önce</span>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Başvurularım */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <h2 className="text-lg font-bold font-heading text-primary-text mb-6 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary-red" />
-              Başvurularım
-            </h2>
-            <div className="flex flex-col gap-4">
-              {applications && applications.length > 0 ? applications.map((app: any) => (
-                <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/30">
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-warning" />
-                    <span className="text-sm font-medium text-primary-text">{app.team?.name || 'Takım Başvurusu'}</span>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded \${
-                    app.status === 'PENDING' ? 'bg-warning/20 text-warning' : 
-                    app.status === 'APPROVED' ? 'bg-green-500/20 text-green-500' : 
-                    'bg-red-500/20 text-red-500'
-                  }`}>
-                    {app.status}
-                  </span>
-                </div>
-              )) : (
-                <p className="text-sm text-secondary-text text-center py-4">Henüz bir takım başvurunuz bulunmuyor.</p>
-              )}
+          {/* EVENTS WIDGET */}
+          <section className="bg-panel border border-border/50 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold font-heading text-white flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary-red" /> Yaklaşan Etkinlikler
+              </h2>
+            </div>
+            <div className="p-4 bg-secondary/10 rounded-xl border border-white/5 text-center">
+              <p className="text-sm text-secondary-text mb-3">Kayıt olduğun bir etkinlik bulunmuyor.</p>
+              <Link href="/events" className="text-xs text-primary-red hover:text-white transition-colors font-medium">Etkinlikleri Keşfet &rarr;</Link>
             </div>
           </section>
 
-          {/* Profil Tamamlama */}
-          <section className="bg-panel border border-border/50 rounded-xl p-6">
-            <h2 className="text-lg font-bold font-heading text-primary-text mb-4">Profil Tamamlama</h2>
-            <div className="w-full bg-secondary rounded-full h-2.5 mb-4">
-              <div className="bg-primary-red h-2.5 rounded-full" style={{ width: `${stats.profileCompletion}%` }}></div>
+          {/* PROFILE COMPLETION WIDGET */}
+          <section className="bg-panel border border-border/50 rounded-2xl p-6">
+            <h2 className="text-sm font-bold text-white mb-3">Profil Tamamlama</h2>
+            <div className="w-full bg-secondary rounded-full h-2 mb-2 overflow-hidden">
+              <div className="bg-gradient-to-r from-[#D00000] to-[#FF1F2D] h-full rounded-full relative" style={{ width: `${stats?.profileCompletion || 60}%` }}>
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
             </div>
-            <p className="text-sm text-secondary-text mb-4">{stats.profileCompletion}% Tamamlandı</p>
-            <Link href="/settings" className="text-sm text-primary-red hover:text-accent-red font-medium flex items-center gap-1">
-              Profilini Tamamla <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-secondary-text">%{(stats?.profileCompletion || 60)} Tamamlandı</span>
+              <Link href={`/u/${user.username}`} className="text-primary-red hover:text-white transition-colors font-medium">Detaylar</Link>
+            </div>
           </section>
+
         </div>
       </div>
-
-      <AddGameModal 
-        isOpen={isGameModalOpen} 
-        onClose={() => setIsGameModalOpen(false)} 
-        onSave={handleAddGame}
-      />
     </div>
   );
 }

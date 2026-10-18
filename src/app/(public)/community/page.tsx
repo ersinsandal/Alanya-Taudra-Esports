@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { Users, Search, Target, Trophy, MessageSquare } from "lucide-react";
-import { CommunityScrimItem } from "./CommunityScrimItem";
+
 
 export const metadata: Metadata = {
   title: "Topluluk | ATE Digital Arena",
@@ -39,30 +39,7 @@ export default async function CommunityPage() {
     console.error("LFT fetch failed:", error);
   }
 
-  // 2. Fetch Open Scrims
-  let openScrims: any[] = [];
-  try {
-    const scrims = await db.scrim.findMany({
-      where: { status: 'OPEN' },
-      include: {
-        creatorTeam: true,
-        game: true,
-      },
-      take: 5,
-      orderBy: { date: 'asc' }
-    });
 
-    openScrims = scrims.map(scrim => ({
-      id: scrim.id,
-      team: scrim.creatorTeam.name,
-      game: scrim.game.name,
-      time: scrim.date.toLocaleString('tr-TR', { weekday: 'short', hour: '2-digit', minute:'2-digit' }),
-      format: 'Bo' + scrim.bestOf,
-      req: scrim.averageLevel || 'Fark Etmez'
-    }));
-  } catch (error) {
-    console.error("Scrims fetch failed:", error);
-  }
 
   // 3. Fetch Top Players
   let topPlayers: any[] = [];
@@ -134,21 +111,7 @@ export default async function CommunityPage() {
           </div>
         </div>
 
-        {/* Scrims Section */}
-        <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col h-full hover:border-white/10 transition-colors">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-heading font-black text-white flex items-center uppercase tracking-wide">
-              <Target className="w-5 h-5 mr-2 text-primary-red" /> Açık Scrimler
-            </h2>
-          </div>
-          <div className="space-y-4 flex-1">
-            {openScrims.length > 0 ? openScrims.map((scrim) => (
-              <CommunityScrimItem key={scrim.id} scrim={scrim} />
-            )) : (
-              <div className="text-sm text-secondary p-4 text-center bg-black/20 rounded-lg border border-white/5">Şu an açık scrim ilanı bulunmuyor.</div>
-            )}
-          </div>
-        </div>
+
 
         {/* Top Players Preview */}
         <div className="bg-panel border border-white/5 rounded-xl p-6 flex flex-col h-full hover:border-white/10 transition-colors">

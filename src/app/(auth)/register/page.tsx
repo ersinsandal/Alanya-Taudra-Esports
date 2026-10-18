@@ -3,11 +3,65 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Globe, Check, Loader2, X, School, GraduationCap } from 'lucide-react';
+import { 
+  MapPin, 
+  Globe, 
+  Check, 
+  Loader2, 
+  X, 
+  School, 
+  GraduationCap, 
+  Eye, 
+  EyeOff, 
+  Swords, 
+  Users, 
+  Trophy, 
+  Crown, 
+  Tv 
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { alanyaSchools } from '@/lib/data/schools';
 import { register } from '@/lib/actions/auth';
+
+const purposeOptions = [
+  {
+    id: 'Rekabetçi Espor',
+    title: 'Rekabetçi Espor',
+    description: 'Turnuvalarda ve liglerde profesyonel olarak yarışmak',
+    icon: Swords,
+  },
+  {
+    id: 'Takım & Kadro',
+    title: 'Takım & Kadro',
+    description: 'Bir espor takımına katılmak veya yeni takım arkadaşları bulmak',
+    icon: Users,
+  },
+  {
+    id: 'Okul / Kampüs Ligi',
+    title: 'Okul / Kampüs Ligi',
+    description: 'Alanya Okul Ligi veya Campus Clash turnuvalarında okulumu temsil etmek',
+    icon: GraduationCap,
+  },
+  {
+    id: 'Turnuva Katılımı',
+    title: 'Turnuva Katılımı',
+    description: 'Ödüllü resmi ATE turnuvalarında ve etkinliklerinde yer almak',
+    icon: Trophy,
+  },
+  {
+    id: 'Takım Kaptanı / Kurucu',
+    title: 'Takım Kaptanı / Kurucu',
+    description: 'Kendi espor takımını kurup yönetmek',
+    icon: Crown,
+  },
+  {
+    id: 'İçerik Üreticisi & Medya',
+    title: 'İçerik Üreticisi & Medya',
+    description: 'Yayın, klip, edit veya espor medyası üretmek',
+    icon: Tv,
+  },
+];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,11 +80,17 @@ export default function RegisterPage() {
     phone: '',
     birthDate: '',
     discord: '',
-    purposes: [] as string[],
+    purposes: ['Rekabetçi Espor'] as string[],
+    password: '',
+    confirmPassword: '',
+    purpose: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
+  const [ateId, setAteId] = useState('');
 
   // Animation variants
   const variants = {
@@ -43,7 +103,7 @@ export default function RegisterPage() {
     { id: 1, name: 'HOŞGELDİN' },
     { id: 2, name: 'KONUM' },
     { id: 3, name: 'BİLGİLER' },
-    { id: 4, name: 'PROFİL' },
+    { id: 4, name: 'HEDEFLER' },
     { id: 5, name: 'HAZIR' },
   ];
 
@@ -69,34 +129,51 @@ export default function RegisterPage() {
   };
 
   const handleRegister = async () => {
+    if (!formData.password || formData.password.length < 8) {
+      alert("Şifreniz en az 8 karakter olmalıdır.");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      alert("Şifreler birbiriyle uyuşmuyor. Lütfen iki alana da aynı şifreyi giriniz.");
+      return;
+    }
+
     setLoading(true);
     try {
+      const isHighSchool = formData.userType.includes('Lise');
+      const isUni = formData.userType.includes('Üniversite');
+      const isGrad = formData.userType.includes('Mezun');
+      const isWork = formData.userType.includes('Çalış');
+      const studentStatus = isHighSchool ? 'HIGH_SCHOOL' : isUni ? 'UNIVERSITY' : isGrad ? 'GRADUATED' : isWork ? 'WORKING' : 'OTHER';
+
       const result = await register({
         username: formData.username,
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone || undefined,
+        phone: formData.phone || '',
         birthDate: formData.birthDate,
         isAlanya: formData.location === 'alanya',
-        city: formData.city || undefined,
+        city: formData.city || '',
         country: formData.country,
-        studentStatus: formData.userType === 'lise' ? 'HIGH_SCHOOL' : formData.userType === 'universite' ? 'UNIVERSITY' : undefined,
-        schoolId: formData.schoolId || undefined,
-        universityId: formData.universityId || undefined,
+        studentStatus,
+        schoolId: isHighSchool ? formData.schoolId : undefined,
+        universityId: isUni ? formData.universityId : undefined,
         discordUsername: formData.discord || undefined,
-        purpose: [formData.purpose].filter(Boolean),
+        purpose: formData.purposes.length > 0 ? formData.purposes : ['Rekabetçi Espor'],
       });
+
       if (result.success && result.data) {
         setAteId(result.data.ateId);
         setStep(5);
       } else {
         console.error(result.error);
-        // Could show error toast here
+        alert(result.error || "Kayıt olurken bir hata oluştu. Bilgilerinizi kontrol edip tekrar deneyin.");
       }
     } catch (error) {
       console.error(error);
+      alert("Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }
@@ -145,7 +222,7 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-bold font-space text-white">ATE dünyasına katıl.</h1>
                 <p className="text-xl text-[#99999F]">
-                  Oyuncu ol, takımını kur, turnuvalara katıl veya topluluğun bir parçası ol.
+                  Oyuncu ol, takımını kur, turnuvalara katıl ve dijital arenada yerini al.
                 </p>
               </div>
 
@@ -213,8 +290,8 @@ export default function RegisterPage() {
                     onChange={(e) => setFormData({...formData, country: e.target.value})}
                     className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
                   >
-                    <option value="Turkey">Türkiye</option>
-                    <option value="Other">Diğer Ülke</option>
+                    <option className="bg-[#050505] text-white" value="Turkey">Türkiye</option>
+                    <option className="bg-[#050505] text-white" value="Other">Diğer Ülke</option>
                   </select>
                 </div>
               )}
@@ -239,7 +316,7 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          {/* STEP 3: SENİ TANIYALIM (OKUL SEÇİMİ ENTEGRE) */}
+          {/* STEP 3: SENİ TANIYALIM (OKUL SEÇİMİ VE ŞİFRE DAHİL) */}
           {step === 3 && (
             <motion.div
               key="step3"
@@ -251,7 +328,7 @@ export default function RegisterPage() {
             >
               <div className="text-center">
                 <h2 className="text-3xl font-bold font-space text-white">Seni Tanıyalım</h2>
-                <p className="text-sm text-[#99999F] mt-1">Öğrencilik durumunu ve kişisel bilgilerini gir.</p>
+                <p className="text-sm text-[#99999F] mt-1">Öğrencilik durumunu ve hesap bilgilerini eksiksiz gir.</p>
               </div>
               
               {/* Kullanıcı Tipi Seçimi */}
@@ -302,13 +379,13 @@ export default function RegisterPage() {
                     required
                     className="w-full rounded-md border border-white/20 bg-[#050505] px-4 py-3 text-white focus:border-[#D00000] focus:ring-1 focus:ring-[#D00000] focus:outline-none"
                   >
-                    <option value="">-- Lise Seçiniz (48 Alanya Lisesi) --</option>
+                    <option className="bg-[#050505] text-white" value="">-- Lise Seçiniz (48 Alanya Lisesi) --</option>
                     {alanyaSchools.map((school) => (
-                      <option key={school.name} value={school.name}>
+                      <option className="bg-[#050505] text-white" key={school.name} value={school.name}>
                         {school.name} ({school.type === 'PUBLIC' ? 'Resmi' : 'Özel'})
                       </option>
                     ))}
-                    <option value="Diger">Diğer / Alanya Dışındaki Bir Lise</option>
+                    <option className="bg-[#050505] text-white" value="Diger">Diğer / Alanya Dışındaki Bir Lise</option>
                   </select>
                 </motion.div>
               )}
@@ -333,32 +410,37 @@ export default function RegisterPage() {
                     required
                     className="w-full rounded-md border border-white/20 bg-[#050505] px-4 py-3 text-white focus:border-[#D00000] focus:ring-1 focus:ring-[#D00000] focus:outline-none"
                   >
-                    <option value="">-- Üniversite Seçiniz --</option>
-                    <option value="Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)">Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)</option>
-                    <option value="Alanya Üniversitesi">Alanya Üniversitesi</option>
-                    <option value="Akdeniz Üniversitesi">Akdeniz Üniversitesi</option>
-                    <option value="Anadolu Üniversitesi">Anadolu Üniversitesi</option>
-                    <option value="Diğer Üniversite">Diğer Üniversite</option>
+                    <option className="bg-[#050505] text-white" value="">-- Üniversite Seçiniz --</option>
+                    <option className="bg-[#050505] text-white" value="Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)">Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)</option>
+                    <option className="bg-[#050505] text-white" value="Alanya Üniversitesi">Alanya Üniversitesi</option>
+                    <option className="bg-[#050505] text-white" value="Akdeniz Üniversitesi">Akdeniz Üniversitesi</option>
+                    <option className="bg-[#050505] text-white" value="Anadolu Üniversitesi">Anadolu Üniversitesi</option>
+                    <option className="bg-[#050505] text-white" value="Diğer Üniversite">Diğer Üniversite</option>
                   </select>
                 </motion.div>
               )}
 
-              {/* Kişisel Bilgiler */}
+              {/* Kişisel Bilgiler & Şifre */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <input
-                  type="text"
-                  placeholder="Ad *"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                  className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Soyad *"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                  className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
-                />
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Ad *"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Soyad *"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
+                  />
+                </div>
+                
                 <div className="relative">
                   <input
                     type="text"
@@ -376,32 +458,85 @@ export default function RegisterPage() {
                     {usernameStatus === 'unavailable' && formData.username.length > 0 && <X className="w-5 h-5 text-red-500" />}
                   </div>
                 </div>
-                <input
-                  type="email"
-                  placeholder="E-posta *"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
-                />
+
+                <div>
+                  <input
+                    type="email"
+                    placeholder="E-posta *"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
+                  />
+                </div>
+
                 <div className="flex">
-                  <span className="inline-flex items-center px-4 rounded-l-md border border-r-0 border-white/10 bg-[#0B0B0D] text-gray-400">
+                  <span className="inline-flex items-center px-4 rounded-l-md border border-r-0 border-white/10 bg-[#0B0B0D] text-gray-400 text-sm">
                     +90
                   </span>
                   <input
                     type="tel"
-                    placeholder="Telefon Numarası"
+                    placeholder="Telefon (İsteğe bağlı)"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     className="flex-1 rounded-r-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none"
                   />
                 </div>
-                <input
-                  type="date"
-                  placeholder="Doğum Tarihi"
-                  value={formData.birthDate}
-                  onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
-                  className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-gray-300 focus:border-[#D00000] focus:outline-none"
-                />
+
+                <div>
+                  <input
+                    type="date"
+                    placeholder="Doğum Tarihi *"
+                    value={formData.birthDate}
+                    onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-gray-300 focus:border-[#D00000] focus:outline-none"
+                  />
+                </div>
+
+                {/* Şifre Alanı */}
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Şifre (En az 8 karakter) *"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+
+                {/* Şifre Tekrar Alanı */}
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Şifre Tekrar *"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                    className="w-full rounded-md border border-white/10 bg-[#111114] px-4 py-3 text-white focus:border-[#D00000] focus:outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Validation helper messages */}
+              <div className="space-y-1">
+                {formData.password && formData.password.length < 8 && (
+                  <p className="text-xs text-amber-400">Şifre en az 8 karakter uzunluğunda olmalıdır.</p>
+                )}
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-xs text-red-400">Girdiğiniz şifreler eşleşmiyor.</p>
+                )}
               </div>
 
               <div className="flex justify-between pt-6 border-t border-white/10">
@@ -422,9 +557,13 @@ export default function RegisterPage() {
                     !formData.firstName || 
                     !formData.lastName || 
                     formData.username.length < 3 || 
-                    !formData.email
+                    !formData.email ||
+                    !formData.birthDate ||
+                    !formData.password ||
+                    formData.password.length < 8 ||
+                    formData.password !== formData.confirmPassword
                   }
-                  className="px-8 py-3 bg-[#D00000] text-white font-medium rounded-lg hover:bg-[#FF1F2D] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(208,0,0,0.3)] transition-all"
+                  className="px-8 py-3 bg-[#D00000] text-white font-medium rounded-lg hover:bg-[#FF1F2D] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(208,0,0,0.3)] transition-all font-space"
                 >
                   Devam Et
                 </button>
@@ -432,7 +571,7 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          {/* STEP 4: AMACIN NE? */}
+          {/* STEP 4: AMACIN VE HEDEFLERİN */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -443,34 +582,49 @@ export default function RegisterPage() {
               className="space-y-8"
             >
               <div className="text-center">
-                <h2 className="text-3xl font-bold font-space text-white">Amacın Ne?</h2>
-                <p className="text-sm text-[#99999F] mt-1">Platformdaki hedeflerini seç (birden fazla seçebilirsin).</p>
+                <h2 className="text-3xl font-bold font-space text-white">Hedefin Ne?</h2>
+                <p className="text-sm text-[#99999F] mt-1">Platformdaki amaçlarını seç (birden fazla seçebilirsin).</p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  'Rekabetçi oyuncuyum', 'Takım arıyorum', 'ATE Academy istiyorum', 
-                  'Turnuvalara katılmak istiyorum', 'Taraftarım', 'İçerik üreticisiyim', 'Topluluk için buradayım'
-                ].map((purpose) => (
-                  <button
-                    key={purpose}
-                    type="button"
-                    onClick={() => {
-                      const newPurposes = formData.purposes.includes(purpose)
-                        ? formData.purposes.filter(p => p !== purpose)
-                        : [...formData.purposes, purpose];
-                      setFormData({...formData, purposes: newPurposes});
-                    }}
-                    className={`p-4 text-left rounded-lg border transition-all ${
-                      formData.purposes.includes(purpose) ? 'border-[#D00000] bg-[#D00000]/10 text-white shadow-sm' : 'border-white/10 bg-[#111114] text-[#99999F] hover:bg-white/5'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{purpose}</span>
-                      {formData.purposes.includes(purpose) && <Check className="w-5 h-5 text-[#D00000]" />}
-                    </div>
-                  </button>
-                ))}
+                {purposeOptions.map((opt) => {
+                  const Icon = opt.icon;
+                  const isSelected = formData.purposes.includes(opt.id);
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        const newPurposes = isSelected
+                          ? formData.purposes.filter(p => p !== opt.id)
+                          : [...formData.purposes, opt.id];
+                        setFormData({...formData, purposes: newPurposes});
+                      }}
+                      className={`p-4 text-left rounded-xl border transition-all flex items-start gap-3.5 group ${
+                        isSelected 
+                          ? 'border-[#D00000] bg-[#D00000]/15 shadow-[0_0_15px_rgba(208,0,0,0.2)]' 
+                          : 'border-white/10 bg-[#111114] hover:bg-white/5 hover:border-white/20'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg shrink-0 mt-0.5 transition-colors ${
+                        isSelected ? 'bg-[#D00000] text-white shadow-sm' : 'bg-black/40 text-gray-400 group-hover:text-white'
+                      }`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className={`font-bold text-sm tracking-wide ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                            {opt.title}
+                          </span>
+                          {isSelected && <Check className="w-4 h-4 text-[#FF1F2D] shrink-0 ml-1" />}
+                        </div>
+                        <p className="text-xs text-[#99999F] mt-1 line-clamp-2">
+                          {opt.description}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="flex justify-between pt-8 border-t border-white/10">
@@ -485,7 +639,7 @@ export default function RegisterPage() {
                   type="button"
                   onClick={handleRegister}
                   disabled={loading || formData.purposes.length === 0}
-                  className="px-8 py-3 bg-[#D00000] text-white font-medium rounded-lg hover:bg-[#FF1F2D] disabled:opacity-50 flex items-center shadow-[0_0_20px_rgba(208,0,0,0.3)]"
+                  className="px-8 py-3 bg-[#D00000] text-white font-medium rounded-lg hover:bg-[#FF1F2D] disabled:opacity-50 flex items-center shadow-[0_0_20px_rgba(208,0,0,0.3)] transition-all font-space uppercase tracking-wider"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Kayıt Ol & ATE ID Al
@@ -510,7 +664,7 @@ export default function RegisterPage() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#D00000] rounded-full filter blur-[80px] opacity-25"></div>
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
                   <div className="font-bold text-xl text-white tracking-widest font-space">ATE PASSPORT</div>
-                  <div className="text-xs text-[#FF1F2D] font-mono font-bold tracking-wider">ATE-074-{Math.floor(100000 + Math.random() * 900000)}</div>
+                  <div className="text-xs text-[#FF1F2D] font-mono font-bold tracking-wider">{ateId || 'ATE-074-XXXXXX'}</div>
                 </div>
                 <div className="flex gap-4 mb-6">
                   <div className="w-16 h-16 rounded-xl bg-[#0B0B0D] border border-white/10 flex items-center justify-center text-white">
@@ -520,7 +674,7 @@ export default function RegisterPage() {
                     <div className="font-bold text-lg text-white">{formData.username}</div>
                     <div className="text-sm text-[#99999F]">{formData.firstName} {formData.lastName}</div>
                     <div className="text-xs text-[#D00000] mt-1 font-medium tracking-wider uppercase">
-                      {formData.schoolId ? formData.schoolId.substring(0, 22) + '...' : formData.universityId || formData.purposes[0] || 'Oyuncu'}
+                      {formData.schoolId ? (formData.schoolId.length > 25 ? formData.schoolId.substring(0, 25) + '...' : formData.schoolId) : formData.universityId ? formData.universityId : 'ATE Espor Üyesi'}
                     </div>
                   </div>
                 </div>
@@ -544,7 +698,7 @@ export default function RegisterPage() {
                   )}
                   <div className="flex justify-between">
                     <span>Katılım:</span>
-                    <span className="text-white font-medium">Eylül 2026</span>
+                    <span className="text-white font-medium">{new Date().toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>
               </div>

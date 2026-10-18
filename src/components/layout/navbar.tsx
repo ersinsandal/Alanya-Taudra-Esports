@@ -42,6 +42,7 @@ export function Navbar({ user = null }: NavbarProps) {
     { href: '/teams', label: 'Takımlar' },
     { href: '/players', label: 'Oyuncular' },
     { href: '/tournaments', label: 'Turnuvalar' },
+    { href: '/events', label: 'Etkinlikler' },
     { href: '/schools', label: 'Okullar' },
     { href: '/community', label: 'Topluluk' },
     { href: '/news', label: 'Haberler' },
@@ -139,11 +140,11 @@ export function Navbar({ user = null }: NavbarProps) {
                       <LayoutDashboard className="w-4 h-4" /> Dashboard
                     </Link>
                     <Link 
-                      href="/dashboard" 
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-[#F7F7F7] hover:bg-white/5 transition-colors"
-                    >
-                      <User className="w-4 h-4" /> Profil
+                        href={`/u/${user.username}`}
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-[#F7F7F7] hover:bg-white/5 transition-colors"
+                      >
+                        <User className="w-4 h-4" /> Profil
                     </Link>
                     <Link 
                       href="/settings" 
@@ -229,8 +230,8 @@ export function Navbar({ user = null }: NavbarProps) {
                 <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-2 text-white hover:bg-white/5 rounded-lg">
                   <LayoutDashboard className="w-5 h-5" /> Dashboard
                 </Link>
-                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-2 text-white hover:bg-white/5 rounded-lg">
-                  <User className="w-5 h-5" /> Profil
+                <Link href={`/u/${user.username}`} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-2 text-white hover:bg-white/5 rounded-lg">
+                    <User className="w-5 h-5" /> Profil
                 </Link>
                 <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-2 text-white hover:bg-white/5 rounded-lg">
                   <Settings className="w-5 h-5" /> Ayarlar

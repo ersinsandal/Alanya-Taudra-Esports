@@ -44,10 +44,10 @@ export default function NewTeamPage() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-secondary-text">Oyun</label>
             <select className="w-full bg-secondary border border-border/50 rounded-lg px-4 py-2.5 text-primary-text focus:outline-none focus:border-primary-red appearance-none">
-              <option value="">Oyun Seçiniz</option>
-              <option value="valorant">VALORANT</option>
-              <option value="cs2">Counter-Strike 2</option>
-              <option value="lol">League of Legends</option>
+              <option className="bg-[#050505] text-white" value="">Oyun Seçiniz</option>
+              <option className="bg-[#050505] text-white" value="valorant">VALORANT</option>
+              <option className="bg-[#050505] text-white" value="cs2">Counter-Strike 2</option>
+              <option className="bg-[#050505] text-white" value="lol">League of Legends</option>
             </select>
           </div>
 

@@ -1,12 +1,11 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { ShieldAlert, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
 export default async function ModerationAdminPage() {
   const actions = await prisma.moderationAction.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      moderator: true,
-      user: true
+      report: true
     },
     take: 50
   });
@@ -20,7 +19,7 @@ export default async function ModerationAdminPage() {
         </h1>
       </div>
 
-      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-panel border border-white/10 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/10 text-xs text-[#99999F] bg-black/20">
@@ -35,14 +34,14 @@ export default async function ModerationAdminPage() {
             {actions.length > 0 ? actions.map((a) => (
               <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="p-4">
-                  <div className="font-bold text-white">{a.moderator?.username || 'Sistem'}</div>
+                  <div className="font-mono text-xs text-[#99999F]">{a.moderatorId.substring(0,8)}...</div>
                 </td>
                 <td className="p-4">
-                  <div className="font-bold text-[#D00000]">{a.user?.username || 'Bilinmiyor'}</div>
+                  <div className="font-mono text-xs text-[#D00000]">HEDEF: {a.report.targetId.substring(0,8)}...</div>
                 </td>
                 <td className="p-4">
                   <div className="text-sm font-bold capitalize text-yellow-500">
-                    {a.actionType}
+                    {a.action}
                   </div>
                 </td>
                 <td className="p-4">

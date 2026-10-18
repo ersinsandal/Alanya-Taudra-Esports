@@ -18,7 +18,7 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
       where: {
         status: 'ACTIVE',
         profile: {
-          showGameProfiles: true
+          privacyGames: 'PUBLIC'
         }
       },
       include: {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Users, Search, Shield, Gamepad2, Ban, MoreVertical } from "lucide-react";
+import { UserActionsMenu } from "./user-actions";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
@@ -109,7 +110,7 @@ export default async function AdminUsersPage({
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {users.map((u, i) => (
                 <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                   <td className="p-4 text-xs font-mono text-secondary">{u.ateId || 'YOK'}</td>
                   <td className="p-4 font-bold text-white">
@@ -135,9 +136,7 @@ export default async function AdminUsersPage({
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <button className="p-2 text-secondary hover:text-white transition-colors">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
+                    <UserActionsMenu userId={u.id} username={u.username} isLast={i >= users.length - 2} />
                   </td>
                 </tr>
               ))}

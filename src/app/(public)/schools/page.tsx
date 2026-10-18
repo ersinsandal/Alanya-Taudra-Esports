@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
-import { mockSchools, mockUniversities } from '@/lib/data/mock-schools';
+
 import SchoolsClient from './schools-client';
 import { getCurrentUser } from '@/lib/auth/session';
 
@@ -26,20 +26,18 @@ export default async function SchoolsPage() {
 
   try {
     schools = await prisma.school.findMany({
+      where: { isActive: true },
       include: { _count: { select: { profiles: true } } }
     });
-    if (schools.length === 0) schools = mockSchools;
     schools.sort(trSort);
     
     universities = await prisma.university.findMany({
+      where: { isActive: true },
       include: { _count: { select: { profiles: true } } }
     });
-    if (universities.length === 0) universities = mockUniversities;
     universities.sort(trSort);
   } catch (error) {
-    console.warn("Schools DB fetch failed, using fallback");
-    schools = mockSchools;
-    universities = mockUniversities;
+    console.error("Schools DB fetch failed:", error);
   }
 
   return (

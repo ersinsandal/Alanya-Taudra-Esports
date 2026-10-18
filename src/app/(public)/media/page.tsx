@@ -33,19 +33,17 @@ export default async function MediaPage({
   ];
 
   return (
-    <div className="container py-12 mx-auto">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-4xl font-display font-bold uppercase tracking-tight text-[#F7F7F7]">
-            MEDYA
-          </h1>
-          <p className="text-[#99999F] mt-2">
-            Arenanın en iyi anları, etkinlikler ve turnuvalardan kareler.
-          </p>
-        </div>
+    <div className="container mx-auto max-w-7xl px-4 py-12">
+      <div className="text-center mt-12 mb-8 md:mb-12">
+        <h1 className="text-4xl md:text-5xl font-heading font-black text-white uppercase tracking-tight mb-4">
+          MEDYA
+        </h1>
+        <p className="text-secondary-text max-w-2xl mx-auto text-lg">
+          Arenanın en iyi anları, etkinlikler ve turnuvalardan kareler.
+        </p>
       </div>
 
-      <div className="flex overflow-x-auto pb-4 mb-8 gap-2 scrollbar-hide">
+      <div className="flex flex-wrap justify-center overflow-x-auto pb-4 mb-8 gap-2 scrollbar-hide">
         {filters.map((f) => (
           <Link
             key={f.value}

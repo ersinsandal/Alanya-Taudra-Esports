@@ -137,10 +137,10 @@ function StaffForm() {
               onChange={(e) => setSelectedRole(e.target.value)}
               className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary-red transition-colors appearance-none"
             >
-              <option value="Koç">Koç</option>
-              <option value="Analist">Analist</option>
-              <option value="İçerik Üreticisi">İçerik Üreticisi</option>
-              <option value="Gönüllü">Gönüllü</option>
+              <option className="bg-[#050505] text-white" value="Koç">Koç</option>
+              <option className="bg-[#050505] text-white" value="Analist">Analist</option>
+              <option className="bg-[#050505] text-white" value="İçerik Üreticisi">İçerik Üreticisi</option>
+              <option className="bg-[#050505] text-white" value="Gönüllü">Gönüllü</option>
             </select>
           </div>
 

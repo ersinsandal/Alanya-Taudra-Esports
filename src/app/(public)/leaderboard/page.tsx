@@ -30,7 +30,7 @@ export default async function LeaderboardPage({
     { label: "EA FC 24", value: "FC24" },
   ];
 
-  let leaderboardData = [];
+  let leaderboardData: any[] = [];
 
   if (type === "OYUNCULAR") {
     const points = await prisma.pointTransaction.groupBy({
@@ -51,7 +51,7 @@ export default async function LeaderboardPage({
           id: user.id,
           name: user.username,
           score: points[i]._sum.amount || 0,
-          avatar: null,
+          avatar: user.profile?.avatarUrl || null,
           rank: i + 1,
           trend: "same"
         });
@@ -61,11 +61,12 @@ export default async function LeaderboardPage({
     const teams = await prisma.team.findMany({
       take: 50,
       include: {
+        game: true,
         members: {
           include: {
             user: {
               include: {
-                points: true
+                pointTransactions: true
               }
             }
           }
@@ -73,50 +74,50 @@ export default async function LeaderboardPage({
       }
     });
 
-    leaderboardData = teams.map((t, idx) => {
+    leaderboardData = teams.map((t: any) => {
       let teamScore = 0;
-      t.members.forEach(m => {
-        m.user.points.forEach(p => teamScore += p.amount);
+      t.members.forEach((m: any) => {
+        m.user.pointTransactions.forEach((p: any) => teamScore += p.amount);
       });
       return {
         id: t.id,
         name: t.name,
         score: teamScore,
-        avatar: t.logo,
+        avatar: t.logoUrl || null,
         rank: 0,
         trend: "same"
       };
-    }).sort((a, b) => b.score - a.score).map((t, idx) => ({ ...t, rank: idx + 1 })).filter(t => t.score > 0);
+    }).sort((a: any, b: any) => b.score - a.score).map((t: any, idx: number) => ({ ...t, rank: idx + 1 })).filter((t: any) => t.score > 0);
   } else if (type === "OKULLAR") {
     const schools = await prisma.school.findMany({
       take: 50,
       include: {
-        users: {
+        profiles: {
           include: {
             user: {
-              include: { points: true }
+              include: { pointTransactions: true }
             }
           }
         }
       }
     });
 
-    leaderboardData = schools.map((s, idx) => {
+    leaderboardData = schools.map((s: any) => {
       let schoolScore = 0;
-      s.users.forEach(u => {
-        if(u.user?.points) {
-            u.user.points.forEach(p => schoolScore += p.amount);
+      s.profiles.forEach((u: any) => {
+        if(u.user?.pointTransactions) {
+            u.user.pointTransactions.forEach((p: any) => schoolScore += p.amount);
         }
       });
       return {
         id: s.id,
         name: s.name,
         score: schoolScore,
-        avatar: s.logo,
+        avatar: null,
         rank: 0,
         trend: "same"
       };
-    }).sort((a, b) => b.score - a.score).map((s, idx) => ({ ...s, rank: idx + 1 })).filter(s => s.score > 0);
+    }).sort((a: any, b: any) => b.score - a.score).map((s: any, idx: number) => ({ ...s, rank: idx + 1 })).filter((s: any) => s.score > 0);
   }
 
   const top3 = leaderboardData.slice(0, 3);

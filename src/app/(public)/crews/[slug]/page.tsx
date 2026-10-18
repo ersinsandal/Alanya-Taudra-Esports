@@ -3,10 +3,11 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { notFound } from 'next/navigation';
 import CrewClient from './crew-client';
 
-export default async function CrewDetailsPage({ params }: { params: { slug: string } }) {
+export default async function CrewDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const user = await getCurrentUser();
-  const slug = params.slug;
-
+  
   const crew = await prisma.crew.findUnique({
     where: { slug },
     include: {

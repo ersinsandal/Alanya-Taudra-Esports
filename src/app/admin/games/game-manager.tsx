@@ -39,7 +39,7 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-heading font-black tracking-tight text-white uppercase">Oyun & Ekip Yönetimi</h1>
+        <h1 className="text-3xl font-heading font-black tracking-tight text-white uppercase">Oyun Yönetimi</h1>
         {isSuperAdmin ? (
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -57,7 +57,7 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {games.map(game => (
-          <div key={game.id} className="bg-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/20 transition-all group">
+          <div key={game.id} className="bg-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/20 transition-all group flex flex-col h-full">
             <div className="h-32 relative bg-black border-b border-white/5">
               {game.crewLogo || game.icon ? (
                 <div 
@@ -74,13 +74,23 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
               </div>
             </div>
 
-            <div className="p-5 relative z-10 -mt-6">
+            <div className="p-5 relative z-10 -mt-6 flex flex-col flex-1">
               <h3 className="text-xl font-heading font-black text-white uppercase tracking-tight drop-shadow-md">{game.name}</h3>
               
-              <Link href="/admin/crews" className="mt-4 flex items-center gap-2 text-sm text-secondary bg-white/5 hover:bg-white/10 transition-colors p-2 rounded-lg border border-white/5 w-fit">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>{game.crewName}</span>
-              </Link>
+              <div className="mt-auto pt-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center shadow-inner">
+                     <Shield className="w-5 h-5 text-[#D00000]" />
+                   </div>
+                   <div className="flex flex-col">
+                     <span className="text-[10px] font-bold text-[#99999F] uppercase tracking-wider">Topluluk Ekibi</span>
+                     <span className="text-sm font-medium text-white line-clamp-1" title={game.crewName}>{game.crewName}</span>
+                   </div>
+                </div>
+                <Link href="/admin/crews" className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors">
+                  Yönet
+                </Link>
+              </div>
             </div>
           </div>
         ))}
@@ -118,12 +128,12 @@ export function GameManager({ initialGames, isSuperAdmin }: GameManagerProps) {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-secondary uppercase tracking-wider">Kategori</label>
                 <select name="category" className="w-full bg-background border border-white/10 rounded-lg p-3 text-white focus:border-primary-red outline-none transition-colors appearance-none">
-                  <option value="PC">PC</option>
-                  <option value="MOBILE">Mobil</option>
-                  <option value="CONSOLE">Konsol</option>
-                  <option value="SPORTS">Spor (FC vb.)</option>
-                  <option value="RACING">Yarış</option>
-                  <option value="FIGHTING">Dövüş</option>
+                  <option value="PC" className="bg-[#050505] text-white">PC</option>
+                  <option value="MOBILE" className="bg-[#050505] text-white">Mobil</option>
+                  <option value="CONSOLE" className="bg-[#050505] text-white">Konsol</option>
+                  <option value="SPORTS" className="bg-[#050505] text-white">Spor (FC vb.)</option>
+                  <option value="RACING" className="bg-[#050505] text-white">Yarış</option>
+                  <option value="FIGHTING" className="bg-[#050505] text-white">Dövüş</option>
                 </select>
               </div>
 

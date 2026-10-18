@@ -1,4 +1,4 @@
-﻿import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import SettingsClient from './settings-client';
@@ -15,11 +15,20 @@ export default async function SettingsPage() {
           school: true,
           university: true
         }
+      },
+      gameProfiles: {
+        include: {
+          game: true
+        }
       }
     }
   });
 
   if (!fullUser) redirect('/login');
+
+  const games = await prisma.game.findMany({
+    orderBy: { name: 'asc' }
+  });
 
   return <SettingsClient user={fullUser} />;
 }

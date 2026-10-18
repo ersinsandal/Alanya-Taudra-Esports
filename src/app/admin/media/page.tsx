@@ -1,5 +1,6 @@
-﻿import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { Plus, Edit2, Trash2, Image as ImageIcon, Video } from "lucide-react";
+import Link from "next/link";
 
 export default async function MediaAdminPage() {
   const media = await prisma.mediaItem.findMany({
@@ -10,10 +11,10 @@ export default async function MediaAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-space font-bold tracking-tight text-white uppercase">Medya Kütüphanesi</h1>
-        <button className="flex items-center gap-2 bg-[#D00000] hover:bg-[#A00000] text-white px-4 py-2 rounded-lg transition-colors font-medium">
+        <Link href="/admin/media/new" className="flex items-center gap-2 bg-[#D00000] hover:bg-[#A00000] text-white px-4 py-2 rounded-lg transition-colors font-medium">
           <Plus className="w-5 h-5" />
           <span>Yeni Dosya Yükle</span>
-        </button>
+        </Link>
       </div>
 
       <div className="bg-panel border border-white/10 rounded-xl overflow-hidden p-6">
@@ -21,7 +22,7 @@ export default async function MediaAdminPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {media.map((item) => (
               <div key={item.id} className="relative group rounded-lg overflow-hidden border border-white/10 bg-[#050505] aspect-square flex flex-col items-center justify-center">
-                {item.type === 'IMAGE' ? (
+                {item.type === 'PHOTO' ? (
                   <ImageIcon className="w-12 h-12 text-[#99999F] mb-2" />
                 ) : (
                   <Video className="w-12 h-12 text-[#99999F] mb-2" />

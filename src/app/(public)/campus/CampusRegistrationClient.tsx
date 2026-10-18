@@ -41,9 +41,9 @@ export function CampusRegistrationClient() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Üniversite</label>
                   <select required className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary-red appearance-none">
-                    <option value="">Seçiniz...</option>
-                    <option value="alku">Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)</option>
-                    <option value="alanya">Alanya Üniversitesi</option>
+                    <option className="bg-[#050505] text-white" value="">Seçiniz...</option>
+                    <option className="bg-[#050505] text-white" value="alku">Alanya Alaaddin Keykubat Üniversitesi (ALKÜ)</option>
+                    <option className="bg-[#050505] text-white" value="alanya">Alanya Üniversitesi</option>
                   </select>
                 </div>
 
@@ -60,10 +60,10 @@ export function CampusRegistrationClient() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Oyun</label>
                   <select required className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary-red appearance-none">
-                    <option value="VALORANT">VALORANT</option>
-                    <option value="CS2">Counter-Strike 2</option>
-                    <option value="LOL">League of Legends</option>
-                    <option value="EA FC 24">EA FC 24</option>
+                    <option className="bg-[#050505] text-white" value="VALORANT">VALORANT</option>
+                    <option className="bg-[#050505] text-white" value="CS2">Counter-Strike 2</option>
+                    <option className="bg-[#050505] text-white" value="LOL">League of Legends</option>
+                    <option className="bg-[#050505] text-white" value="EA FC 24">EA FC 24</option>
                   </select>
                 </div>
                 

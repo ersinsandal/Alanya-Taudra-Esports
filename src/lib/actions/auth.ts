@@ -110,32 +110,93 @@ export async function register(data: RegisterData) {
   const passwordHash = await hashPassword(password)
   const ateId = await generateAteId()
 
+  // Resolve school and university to actual database IDs
+  let resolvedSchoolId: string | null = null
+  if (schoolId && schoolId !== 'Diger' && schoolId !== 'Diğer') {
+    const matchedSchool = await prisma.school.findFirst({
+      where: {
+        OR: [
+          { id: schoolId },
+          { name: schoolId },
+          { slug: schoolId },
+        ]
+      }
+    })
+    if (matchedSchool) {
+      resolvedSchoolId = matchedSchool.id
+    }
+  }
+
+  let resolvedUniversityId: string | null = null
+  if (universityId && universityId !== 'Diğer Üniversite' && universityId !== 'Diger') {
+    const matchedUni = await prisma.university.findFirst({
+      where: {
+        OR: [
+          { id: universityId },
+          { name: universityId },
+          { slug: universityId },
+        ]
+      }
+    })
+    if (matchedUni) {
+      resolvedUniversityId = matchedUni.id
+    }
+  }
+
+  // Safely parse studentStatus to valid Prisma enum (HIGH_SCHOOL, UNIVERSITY, GRADUATED, WORKING, OTHER)
+  let parsedStatus: StudentStatus = 'OTHER'
+  const st = (studentStatus || '').toLowerCase()
+  if (st.includes('lise') || st === 'high_school') {
+    parsedStatus = 'HIGH_SCHOOL'
+  } else if (st.includes('üniversite') || st.includes('universite') || st === 'university') {
+    parsedStatus = 'UNIVERSITY'
+  } else if (st.includes('mezun') || st === 'graduated') {
+    parsedStatus = 'GRADUATED'
+  } else if (st.includes('çalış') || st.includes('calis') || st === 'working') {
+    parsedStatus = 'WORKING'
+  } else {
+    parsedStatus = 'OTHER'
+  }
+
   try {
     const newUser = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           username: username.toLowerCase(),
           email,
-          phone,
+          phone: phone ? phone : null,
           passwordHash,
           ateId,
           profile: {
             create: {
               firstName,
               lastName,
-              birthDate: new Date(birthDate),
-              discordUsername,
-              isAlanya,
-              city,
+              birthDate: birthDate ? new Date(birthDate) : null,
+              discordUsername: discordUsername || null,
+              isAlanya: Boolean(isAlanya),
+              city: city || null,
               country: country || 'Türkiye',
-              studentStatus: studentStatus as StudentStatus,
-              schoolId: schoolId || undefined,
-              universityId: universityId || undefined,
-              purpose: purpose || [],
+              studentStatus: parsedStatus,
+              schoolId: resolvedSchoolId,
+              universityId: resolvedUniversityId,
+              purpose: Array.isArray(purpose) ? purpose : [purpose].filter(Boolean),
             }
           }
         }
       })
+
+      // Assign default USER role
+      const defaultRole = await tx.role.findFirst({
+        where: { name: 'USER' }
+      })
+      if (defaultRole) {
+        await tx.userRole.create({
+          data: {
+            userId: user.id,
+            roleId: defaultRole.id,
+          }
+        })
+      }
       
       return user
     })
@@ -184,4 +245,23 @@ export async function checkEmail(email: string) {
     where: { email }
   })
   return { success: true, available: !user }
+}
+
+export async function changePassword(currentPass: string, newPass: string) {
+  const user = await getCurrentUser();
+  if (!user) return { success: false, error: 'Oturum açmadınız.' };
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!dbUser) return { success: false, error: 'Kullanıcı bulunamadı.' };
+
+  const isValid = await bcrypt.compare(currentPass, dbUser.passwordHash);
+  if (!isValid) return { success: false, error: 'Mevcut şifreniz yanlış.' };
+
+  const hashed = await bcrypt.hash(newPass, 10);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: hashed }
+  });
+
+  return { success: true };
 }

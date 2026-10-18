@@ -62,7 +62,6 @@ export type ApplicationStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'SHORTLISTED' | '
 export type TournamentFormat = 'SINGLE_ELIMINATION' | 'DOUBLE_ELIMINATION' | 'ROUND_ROBIN' | 'GROUP_PLAYOFFS';
 export type TournamentStatus = 'DRAFT' | 'UPCOMING' | 'REGISTRATION_OPEN' | 'CHECK_IN' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
 export type MatchStatus = 'SCHEDULED' | 'LIVE' | 'COMPLETED' | 'CANCELLED' | 'POSTPONED';
-export type ScrimStatus = 'OPEN' | 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED';
 export type EventType = 'WATCH_PARTY' | 'LAN' | 'MEET_AND_GREET' | 'TOURNAMENT' | 'WORKSHOP' | 'SCHOOL_EVENT' | 'UNIVERSITY_EVENT' | 'SEMINAR' | 'COMMUNITY_MEETUP' | 'TRYOUT_EVENT';
 export type NewsCategory = 'ATE' | 'MATCH' | 'TRANSFER' | 'ACADEMY' | 'TOURNAMENT' | 'COMMUNITY' | 'SCHOOL' | 'CAMPUS' | 'ANNOUNCEMENT';
 export type MediaType = 'PHOTO' | 'VIDEO' | 'HIGHLIGHT' | 'INTERVIEW' | 'BEHIND_THE_SCENES';

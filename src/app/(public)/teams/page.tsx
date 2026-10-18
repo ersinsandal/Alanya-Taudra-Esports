@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Shield, Trophy, Crosshair, Clock } from 'lucide-react';
 import { prisma } from '@/lib/db';
-import { mockCrews } from '@/lib/data/mock-crews';
 
 export const metadata: Metadata = {
   title: 'ATE Resmi Takımları | ATE Digital Arena',
@@ -42,29 +41,31 @@ export default async function TeamsPage() {
     return gameName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-ekibi';
   };
 
-  let games: string[] = [];
+  let ateTeams: any[] = [];
   try {
-    const dbGames = await prisma.game.findMany();
-    if (dbGames.length > 0) {
-      games = dbGames.map(g => g.name);
-    } else {
-      games = mockCrews.map(c => c.game);
-    }
+    const dbTeams = await prisma.team.findMany({
+      where: { isOfficial: true },
+      include: {
+        game: {
+          include: { crews: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    ateTeams = dbTeams.map((team, index) => ({
+      id: team.id,
+      name: team.name,
+      game: team.game.name,
+      status: team.isOpen ? 'BAŞVURULAR AÇIK' : 'BEKLEMEDE',
+      achievements: '-',
+      cover: getCover(team.game.name),
+      crewSlug: team.game.crews?.[0]?.slug || getSlug(team.game.name),
+      isOpen: team.isOpen
+    }));
   } catch (error) {
-    games = mockCrews.map(c => c.game);
+    console.error('Failed to fetch official teams', error);
   }
-
-  games = Array.from(new Set(games));
-
-  const ateTeams = games.map((game, index) => ({
-    id: index,
-    name: `ATE ${game}`,
-    game: game,
-    status: 'Beklemede',
-    achievements: '-',
-    cover: getCover(game),
-    crewSlug: getSlug(game),
-  }));
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-12">

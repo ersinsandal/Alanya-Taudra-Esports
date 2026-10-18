@@ -78,7 +78,7 @@ export function SchoolLeagueClient() {
                       }}
                       onFocus={() => setIsDropdownOpen(true)}
                       onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                      className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red"
+                      className="w-full bg-black/50 border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red"
                     />
                     
                     {isDropdownOpen && (
@@ -108,15 +108,15 @@ export function SchoolLeagueClient() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Oyuncu Adı Soyadı</label>
-                  <input required type="text" className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red" />
+                  <input required type="text" className="w-full bg-black/50 border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red" />
                 </div>
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Oyun</label>
-                  <select className="w-full bg-[#0B0B0D] border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red appearance-none">
-                    <option value="VALORANT">VALORANT</option>
-                    <option value="CS2">Counter-Strike 2</option>
-                    <option value="LOL">League of Legends</option>
+                  <select className="w-full bg-black/50 border border-white/10 rounded-md px-4 py-2 text-white focus:outline-none focus:border-primary-red appearance-none">
+                    <option className="bg-transparent text-white" value="VALORANT">VALORANT</option>
+                    <option className="bg-transparent text-white" value="CS2">Counter-Strike 2</option>
+                    <option className="bg-transparent text-white" value="LOL">League of Legends</option>
                   </select>
                 </div>
                 
