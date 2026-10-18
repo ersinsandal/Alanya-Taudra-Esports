@@ -63,6 +63,19 @@ export async function login(formData: FormData) {
     await setSessionCookie(token, refreshToken)
   }
 
+  try {
+    const { createAuditLog } = await import('@/lib/services/audit');
+    await createAuditLog({
+      actorId: user.id,
+      action: `Kullanıcı sisteme giriş yaptı (${user.username})`,
+      targetType: 'Giriş',
+      targetId: user.id,
+      metadata: { username: user.username, email: user.email }
+    });
+  } catch (e) {
+    console.error('Audit log error on login:', e);
+  }
+
   const isAdmin = user.roles?.some((r: any) => r.role?.name === 'ADMIN' || r.role?.name === 'SUPER_ADMIN')
   return { success: true, redirectUrl: isAdmin ? '/admin' : '/dashboard' }
 }
@@ -70,6 +83,16 @@ export async function login(formData: FormData) {
 export type RegisterData = z.infer<typeof registerSchema>
 
 export async function register(data: RegisterData) {
+  try {
+    const siteSettings = await prisma.siteSetting.findUnique({ where: { key: 'general' } });
+    const generalConfig = siteSettings?.value as any;
+    if (generalConfig?.disableRegistrations) {
+      return { success: false, error: 'Yeni kullanıcı kayıtları sistem yöneticisi tarafından geçici olarak durdurulmuştur.' };
+    }
+  } catch (e) {
+    // Continue if siteSetting check fails
+  }
+
   const result = registerSchema.safeParse(data)
   if (!result.success) {
     return { success: false, error: getErrorMessage(result.error) }
@@ -203,6 +226,19 @@ export async function register(data: RegisterData) {
 
     const { token, refreshToken } = await createSession(newUser.id)
     await setSessionCookie(token, refreshToken)
+
+    try {
+      const { createAuditLog } = await import('@/lib/services/audit');
+      await createAuditLog({
+        actorId: newUser.id,
+        action: `Yeni kullanıcı kaydı tamamlandı (${cleanUsername})`,
+        targetType: 'Kayıt',
+        targetId: newUser.id,
+        metadata: { username: cleanUsername, email: cleanEmail, ateId: newUser.ateId }
+      });
+    } catch (e) {
+      console.error('Audit log error on register:', e);
+    }
     
     return { success: true, data: { ateId: newUser.ateId } }
   } catch (err: any) {

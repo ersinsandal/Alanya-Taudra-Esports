@@ -58,6 +58,15 @@ export async function createGameAndCrew(formData: FormData) {
     revalidatePath('/teams');
     revalidatePath('/admin/crews');
     revalidatePath('/admin/games');
+    revalidatePath('/admin/audit-logs');
+
+    const { createAuditLog } = await import('@/lib/services/audit');
+    await createAuditLog({
+      actorId: user.id,
+      action: `Yeni Oyun ve Topluluk Ekibi oluşturuldu: "${gameName}" - "${crewName}"`,
+      targetType: 'Oyunlar & Ekipler',
+      metadata: { gameName, crewName, category }
+    });
 
     return { success: true };
   } catch (error: any) {

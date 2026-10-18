@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/services/audit";
 
 export async function deleteUser(userId: string) {
   const currentUser = await getCurrentUser();
@@ -19,6 +20,11 @@ export async function deleteUser(userId: string) {
   }
 
   try {
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true, email: true }
+    });
+
     // Reassign teams created by this user to the current super admin to avoid losing them
     await prisma.team.updateMany({ where: { createdById: userId }, data: { createdById: currentUser.id } });
     
@@ -33,8 +39,17 @@ export async function deleteUser(userId: string) {
     
     // Finally delete user (which cascades gameProfiles, userProfiles, crewMemberships, etc)
     await prisma.user.delete({ where: { id: userId } });
+
+    await createAuditLog({
+      actorId: currentUser.id,
+      action: `Kullanıcı hesabı kalıcı olarak silindi (${targetUser?.username || userId})`,
+      targetType: 'Kullanıcılar',
+      targetId: userId,
+      metadata: { deletedUser: targetUser }
+    });
   
     revalidatePath("/admin/users");
+    revalidatePath("/admin/audit-logs");
     return { success: true };
   } catch (error: any) {
     console.error(error);
@@ -210,10 +225,31 @@ export async function updateUserAdmin(userId: string, data: {
       });
     }
 
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true }
+    });
+
+    await createAuditLog({
+      actorId: currentUser.id,
+      action: `Kullanıcı yetkileri/durumu güncellendi (${targetUser?.username || userId}). Roller: [${roles?.join(', ') || 'Değişmedi'}], Durum: ${status || 'Değişmedi'}`,
+      targetType: 'Kullanıcılar',
+      targetId: userId,
+      metadata: {
+        username: targetUser?.username,
+        status,
+        roles,
+        leaderGameIds,
+        playerGameIds,
+        captainTeamIds
+      }
+    });
+
     revalidatePath("/admin/users");
     revalidatePath(`/admin/users/${userId}`);
     revalidatePath("/admin/teams");
     revalidatePath("/admin/crews");
+    revalidatePath("/admin/audit-logs");
     return { success: true };
   } catch (error: any) {
     console.error(error);

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
 import { TournamentFormat, TournamentStatus } from '@prisma/client';
+import { createAuditLog } from '@/lib/services/audit';
 
 export async function createTournament(data: any) {
   const user = await getCurrentUser();
@@ -32,6 +33,16 @@ export async function createTournament(data: any) {
     }
   });
 
+  await createAuditLog({
+    actorId: user.id,
+    action: `Yeni turnuva oluşturuldu: "${data.name}"`,
+    targetType: 'Turnuvalar',
+    targetId: tournament.id,
+    metadata: { name: data.name, status: data.status, format: data.format }
+  });
+
   revalidatePath('/admin/tournaments');
+  revalidatePath('/tournaments');
+  revalidatePath('/admin/audit-logs');
   return { success: true, id: tournament.id };
 }

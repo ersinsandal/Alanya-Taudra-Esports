@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
+import { createAuditLog } from '@/lib/services/audit';
 
 export async function updateSchool(id: string, data: any) {
   const user = await getCurrentUser();
@@ -10,7 +11,7 @@ export async function updateSchool(id: string, data: any) {
     throw new Error('Yetkisiz işlem');
   }
 
-  await prisma.school.update({
+  const school = await prisma.school.update({
     where: { id },
     data: {
       name: data.name,
@@ -23,7 +24,17 @@ export async function updateSchool(id: string, data: any) {
     }
   });
 
+  await createAuditLog({
+    actorId: user.id,
+    action: `Okul bilgileri güncellendi: "${school.name}" (${school.isActive ? 'Aktif' : 'Pasif'})`,
+    targetType: 'Okullar',
+    targetId: id,
+    metadata: { name: school.name, isActive: school.isActive, code: school.code }
+  });
+
   revalidatePath('/admin/schools');
   revalidatePath(`/admin/schools/${id}`);
+  revalidatePath('/schools');
+  revalidatePath('/admin/audit-logs');
   return { success: true };
 }

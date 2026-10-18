@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
+import { createAuditLog } from '@/lib/services/audit';
 
 export async function updateUniversity(id: string, data: any) {
   const user = await getCurrentUser();
@@ -10,7 +11,7 @@ export async function updateUniversity(id: string, data: any) {
     throw new Error('Yetkisiz işlem');
   }
 
-  await prisma.university.update({
+  const uni = await prisma.university.update({
     where: { id },
     data: {
       name: data.name,
@@ -21,7 +22,17 @@ export async function updateUniversity(id: string, data: any) {
     }
   });
 
+  await createAuditLog({
+    actorId: user.id,
+    action: `Üniversite bilgileri güncellendi: "${uni.name}" (${uni.isActive ? 'Aktif' : 'Pasif'})`,
+    targetType: 'Üniversiteler',
+    targetId: id,
+    metadata: { name: uni.name, isActive: uni.isActive }
+  });
+
   revalidatePath('/admin/universities');
   revalidatePath(`/admin/universities/${id}`);
+  revalidatePath('/campus');
+  revalidatePath('/admin/audit-logs');
   return { success: true };
 }

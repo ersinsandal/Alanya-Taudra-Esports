@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
 import { MediaType } from '@prisma/client';
+import { createAuditLog } from '@/lib/services/audit';
 
 export async function createMedia(formData: FormData) {
   const user = await getCurrentUser();
@@ -17,7 +18,7 @@ export async function createMedia(formData: FormData) {
 
   if (!title || !url) throw new Error('Başlık ve URL zorunludur');
 
-  await prisma.mediaItem.create({
+  const item = await prisma.mediaItem.create({
     data: {
       title,
       type,
@@ -26,7 +27,16 @@ export async function createMedia(formData: FormData) {
     }
   });
 
+  await createAuditLog({
+    actorId: user.id,
+    action: `Yeni medya içeriği eklendi: "${title}" (${type})`,
+    targetType: 'Medya',
+    targetId: item.id,
+    metadata: { title, type, url }
+  });
+
   revalidatePath('/admin/media');
   revalidatePath('/');
+  revalidatePath('/admin/audit-logs');
   return { success: true };
 }
