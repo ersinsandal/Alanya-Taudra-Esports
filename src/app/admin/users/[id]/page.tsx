@@ -17,11 +17,32 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           university: true,
         }
       },
-      roles: { include: { role: true } }
+      roles: { include: { role: true } },
+      gameProfiles: { include: { game: true } },
+      crewLeaderships: { include: { crew: { include: { game: true } } } },
+      teamMemberships: { include: { team: { include: { game: true } } } }
     }
   });
 
   if (!user) notFound();
+
+  const allGames = await prisma.game.findMany({
+    where: { isActive: true },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true, slug: true, icon: true, category: true }
+  });
+
+  const allTeams = await prisma.team.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: 'asc' },
+    include: {
+      game: { select: { id: true, name: true } },
+      members: {
+        where: { role: 'CAPTAIN' },
+        include: { user: { select: { id: true, username: true } } }
+      }
+    }
+  });
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto w-full">
@@ -35,7 +56,11 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <h1 className="text-2xl font-bold font-heading text-white">Kullanıcı Düzenle: {user.username}</h1>
       </div>
 
-      <EditUserClient user={user} />
+      <EditUserClient 
+        user={user} 
+        allGames={allGames} 
+        allTeams={allTeams} 
+      />
     </div>
   );
 }
